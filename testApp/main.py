@@ -29,7 +29,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.route("/", methods=["POST", "GET"])
+@app.route("/home", methods=["POST", "GET"])
 def index():
     
     if request.method =="POST":
@@ -64,5 +64,5 @@ def index():
 
 # start the server and the flask application
 if __name__ == "__main__":
-    app.run(port=3000, debug = True)
+    app.run(port=5000, debug = True)
 
