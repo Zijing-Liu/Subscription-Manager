@@ -52,5 +52,5 @@ for row in results_Sub:
     json_data_Sub.append(row_dict_Sub)
 
 json_data_combine={'User':json_data_User, 'Company':json_data_Co, 'Subscription': json_data_Sub}
-with open('kr0613.json', 'w') as json_file:
+with open('data.json', 'w') as json_file:
     json.dump (json_data_combine, json_file)
