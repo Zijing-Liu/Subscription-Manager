@@ -8,6 +8,32 @@ import requests
 # Access local
 import os
 
+################################################# HTTP requests communicating to the backend server
+# Make a GET request to the /signup endpoint of the web app, and return the response data
+def get_data():
+    response = requests.get('http://localhost:8000/signup')
+    if response.status_code == 200:
+        return response  # a list of tuple
+    else:
+        print('Request failed with status code:', response.status_code)
+
+# Make a post request to the backend api at the signup endpoint and pass the user input data as json data
+def send_request():
+    # Replace with the actual URL of your Flask endpoint
+    url = 'http://localhost:8000/signup'
+    data = {
+        'name': name_text,
+        'email': email_text,
+        'password_hashed': password_text
+    }
+
+    try:
+        response = requests.post(url, json=data)
+        response.raise_for_status()  # Check for any errors
+        # print(response.json())  # Print the response data
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
 
 # Create a landing screen named main_menu
 def main_menu():
@@ -93,31 +119,6 @@ def sign_up():
                          width="26", height="2", command=register)
     sign_up_btn.pack()
 
-
-# Make a GET request to the /signup endpoint of the web app, and return the response data
-def get_data():
-    response = requests.get('http://localhost:8000/signup')
-    if response.status_code == 200:
-        return response  # a list of tuple
-    else:
-        print('Request failed with status code:', response.status_code)
-
-# Make a post request to the backend api at the signup endpoint and pass the user input data as json data
-def send_request():
-    # Replace with the actual URL of your Flask endpoint
-    url = 'http://localhost:8000/signup'
-    data = {
-        'name': name_text,
-        'email': email_text,
-        'password_hashed': password_text
-    }
-
-    try:
-        response = requests.post(url, json=data)
-        response.raise_for_status()  # Check for any errors
-        # print(response.json())  # Print the response data
-    except requests.exceptions.RequestException as e:
-        print('Error:', e)
 
 
 # Register and record the new account information into the database
