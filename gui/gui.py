@@ -2,7 +2,7 @@
 from tkinter import *
 # Access regular expressions
 import re
-
+import requests
 # TESTING!!!
 # Access local
 import os
@@ -76,9 +76,28 @@ def sign_up():
     password_entry.grid(row=4, column=1)
 
     # Create a sign up button
-    sign_up_btn = Button(sign_up_window, text="Sign up", width="26", height="2", command=register)
+    sign_up_btn = Button(sign_up_window, text="Sign up", width="26", height="2", command=send_request)
     sign_up_btn.pack()
 
+def send_request():
+    url = 'http://localhost:5000/home'  # Replace with the actual URL of your Flask endpoint
+    
+    name_text = name.get()
+    email_text = email.get()
+    password_text=password.get()
+
+    data = {
+        'name': name_text,
+        'email': email_text,
+        'password': password_text
+    }  # Replace with the data you want to send in the request
+
+    try:
+        response = requests.post(url, json=data)
+        response.raise_for_status()  # Check for any errors
+        print(response.json())  # Print the response data
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
 
 # Register and record the new account information into the database
 def register():
