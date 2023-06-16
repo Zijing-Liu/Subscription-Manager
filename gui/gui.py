@@ -308,10 +308,6 @@ def login_verify():
 # Create a homepage
 def homepage():
 
-<<<<<<< Updated upstream
-
-main_menu()
-=======
     selected_subscription_name = StringVar()
     cost_entry = StringVar()
 
@@ -369,6 +365,5 @@ main_menu()
     # Spacing between input fields
     Label(homepage_panel, text="", bg="#323232", fg="white").grid(row=3)
 
-    # 
+    
 main_menu()
->>>>>>> Stashed changes
