@@ -1,5 +1,8 @@
 # Access Tkinter modules
 from tkinter import *
+from tkinter.ttk import Combobox
+from tkcalendar import Calendar
+
 # Access regular expressions
 import re
 import json
@@ -266,6 +269,10 @@ def log_in():
 
 # Verify email and password on login screen
 def login_verify():
+
+    # TESTING!!!
+    global email_text1
+
     email_text1 = email_verify.get()
     password_text1 = password_verify.get()
 
@@ -298,8 +305,70 @@ def login_verify():
         try_again_btn.pack(pady=20)
 
 
+# Create a homepage
 def homepage():
-    print('1')
 
+<<<<<<< Updated upstream
 
 main_menu()
+=======
+    selected_subscription_name = StringVar()
+    cost_entry = StringVar()
+
+    # Set screen position, size, title
+    homepage_window = Toplevel(log_in_window)
+    homepage_window.geometry("390x844")
+    homepage_window.title('Homepage')
+    homepage_window.configure(bg="#323232")  # Set background color
+
+    # WARNING - TESTING / WORK IN PROGRESS
+    # !!! NEED TO EXTRACT THE CORRESPONDING 'NAME' DATA FROM DB !!!
+    # !!! ADD THE EXTRACTED 'NAME' DATA AFTER TEXT='HEY' TO CREATE A PERSONALIZED GREETING MESSAGE !!!
+    file = open("gui/credentials.txt", "a")
+    for line in open('gui/credentials.txt', 'r').readlines():
+        login_info = line.split()
+        if email_text1 == login_info[3]:
+            name_text1= login_info[1]
+
+    # Heading/Wecloming message
+    label4 = Label(homepage_window, text="Hey " + name_text1 + " \U0001F44B", font='Helvetica 28 bold', fg='white')
+    label4.pack(fill=X, pady=40)
+    label4.configure(bg='#323232')
+
+    # Instructional message
+    label5 = Label(homepage_window, text="Complete the form to record a new subscription!", font="Helvetica 14", fg="white")
+    label5.pack(fill=X, pady=20)
+    label5.configure(bg='#323232')
+
+    # Make a frame for input fields
+    homepage_panel = Frame(homepage_window)
+    homepage_panel.configure(bg='#323232')
+    homepage_panel.pack(pady=30)
+    
+    # Subscription name dropdown
+    # Create a list of options for the dropdown list
+    subscription_name_options = ['Adobe Creative Cloud', 'AliExpress Premium', 'Amazon Prime', 'Apple Music', 'Apple TV+', 'Disney+', 'DoorDash', 'Google Workspace', 'Grubhub', 'HBO Max', 'Hulu', 'Microsoft 365', 'Netflix', 'Postmates', 'Spotify', 'Uber Eats', 'Walmart+', 'eBay Plus']
+    # Create a combobox widget and a label
+    subscription_name_label = Label(homepage_panel, text="Subscription name: ", bg="#323232", fg="white")
+    subscription_name_label.grid(row=0, column=0)
+    subscription_name_dropdown = Combobox(homepage_panel, values = subscription_name_options, state="readonly")
+    # Set an initial value for the dropdown
+    subscription_name_dropdown.set('Select a subscription')
+    selected_subscription_name = subscription_name_dropdown.get()
+    subscription_name_dropdown.grid(row=0, column=1)
+    
+    # Spacing between input fields
+    Label(homepage_panel, text="", bg="#323232", fg="white").grid(row=1)
+
+    # Cost input
+    cost_label = Label(homepage_panel, text="Cost: $ ", bg="#323232", fg="white")
+    cost_label.grid(row=2, column=0)
+    cost_entry = Entry(homepage_panel,textvariable=cost_entry)
+    cost_entry.grid(row=2, column=1)
+
+    # Spacing between input fields
+    Label(homepage_panel, text="", bg="#323232", fg="white").grid(row=3)
+
+    # 
+main_menu()
+>>>>>>> Stashed changes
