@@ -87,7 +87,7 @@ def sign_up():
 
 
 def send_request():
-    url = 'http://localhost:5000/home'  # Replace with the actual URL of your Flask endpoint
+    url = 'http://localhost:8000/signup'  # Replace with the actual URL of your Flask endpoint
     
     name_text = name.get()
     email_text = email.get()
@@ -96,13 +96,13 @@ def send_request():
     data = {
         'name': name_text,
         'email': email_text,
-        'password': password_text
+        'password_hashed': password_text
     }  # Replace with the data you want to send in the request
 
     try:
         response = requests.post(url, json=data)
         response.raise_for_status()  # Check for any errors
-        print(response.json())  # Print the response data
+        # print(response.json())  # Print the response data
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
