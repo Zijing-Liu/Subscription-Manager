@@ -93,32 +93,24 @@ def sign_up():
                          width="26", height="2", command=register)
     sign_up_btn.pack()
 
-# using requests to get the response from the backend API
 
-
+# Make a GET request to the /signup endpoint of the web app, and return the response data
 def get_data():
     response = requests.get('http://localhost:8000/signup')
     if response.status_code == 200:
-        return response  # Assuming the response data is in JSON format
-    # Process and use the data as needed
+        return response  # a list of tuple
     else:
         print('Request failed with status code:', response.status_code)
-    ############################################
 
-
+# Make a post request to the backend api at the signup endpoint and pass the user input data as json data
 def send_request():
     # Replace with the actual URL of your Flask endpoint
     url = 'http://localhost:8000/signup'
-
-    # name_text = name.get()
-    # email_text = email.get()
-    # password_text=password.get()
-
     data = {
         'name': name_text,
         'email': email_text,
         'password_hashed': password_text
-    }  # Replace with the data you want to send in the request
+    }
 
     try:
         response = requests.post(url, json=data)
@@ -150,20 +142,6 @@ def register():
         existing_emails.append(row[2])
     if (email_text in existing_emails):
         registered = True
-
-    # TESTING!!!
-    # Access local, create a file named credentials.txt if it doesn't exist
-    # If already existed, write to the file
-    # file = open("gui/credentials.txt", "a")
-    # Return all the lines in the file as a list where each line is an item
-    # Loop through each line in the file and split the line
-    # for line in open('gui/credentials.txt', 'r').readlines():
-    #     userinfo = line.split()
-    #     # Set registered from False to True when the email input has already existed in the database
-    #     # If the email has already existed, then registered = True
-    #     # Otherwise, registered = False
-    #     if email_text == userinfo[3]:
-    #         registered = True
 
     # Define a valid email pattern using regular expressions
     valid_email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
