@@ -10,32 +10,51 @@ import requests
 # TESTING!!!
 # Access local
 import os
+import bcrypt
 
-################################################# HTTP requests communicating to the backend server
+
+################################################# HTTP requests start here, communicating to the backend server
 # Make a GET request to the /signup endpoint of the web app, and return the response data
-def get_data():
+def getData():
     response = requests.get('http://localhost:8000/signup')
     if response.status_code == 200:
         return response  # a list of tuple
     else:
         print('Request failed with status code:', response.status_code)
 
-# Make a post request to the backend api at the signup endpoint and pass the user input data as json data
-def send_request():
+# Make a post request to the backend api at the signup endpoint to pass the user input data to the backend database
+def signUp():
     # Replace with the actual URL of your Flask endpoint
     url = 'http://localhost:8000/signup'
     data = {
         'name': name_text,
         'email': email_text,
-        'password_hashed': password_text
+        'password_hashed': hashed_password_str
     }
 
     try:
         response = requests.post(url, json=data)
         response.raise_for_status()  # Check for any errors
-        # print(response.json())  # Print the response data
     except requests.exceptions.RequestException as e:
         print('Error:', e)
+
+# Make a post request to the backend api at the login endpoint, return the result of authenticaiton
+def logIn():
+ # Replace with the actual URL of your Flask endpoint
+    url = 'http://localhost:8000/login'
+    data = {
+        'email': email_text1,
+        'password_hashed': password_text1
+    }
+
+    try:
+        response = requests.post(url, json=data)
+        response.raise_for_status()  # Check for any errors
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
+################################################# HTTP requests end here
+
 
 
 # Create a landing screen named main_menu
@@ -122,13 +141,11 @@ def sign_up():
                          width="26", height="2", command=register)
     sign_up_btn.pack()
 
-
-
 # Register and record the new account information into the database
 def register():
     global name_text
     global email_text
-    global password_text
+    global hashed_password_str
 
     # TESTING!!!
     # Set registered as a boolean operator to False
@@ -139,8 +156,18 @@ def register():
     name_text = name.get()
     email_text = email.get()
     password_text = password.get()
+    # converting password to array of bytes
+    bytes = password_text.encode('utf-8')
+    
+    # generating the salt
+    salt = bcrypt.gensalt()
+    
+    # Hashing the password
+    password_text_hashed = bcrypt.hashpw(bytes, salt)
 
-    curr_users_data = get_data()
+    hashed_password_str = password_text_hashed.decode('utf-8')
+
+    curr_users_data = getData()
     existing_emails = []
     for row in curr_users_data:
         existing_emails.append(row[2])
@@ -199,7 +226,7 @@ def register():
         # file.close()
 
         # send the post request to the backend server
-        send_request()
+        signUp()
         # Clear out the entry box
         name_entry.delete(0, END)
         email_entry.delete(0, END)
@@ -269,10 +296,15 @@ def log_in():
 
 # Verify email and password on login screen
 def login_verify():
+<<<<<<< Updated upstream
 
     # TESTING!!!
     global email_text1
 
+=======
+    global email_text1
+    global password_text1
+>>>>>>> Stashed changes
     email_text1 = email_verify.get()
     password_text1 = password_verify.get()
 

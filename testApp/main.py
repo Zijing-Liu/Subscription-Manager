@@ -50,6 +50,12 @@ class UserSignUp(Resource):
             print("An error occurred:", str(e))
             return "Oops! There was an issue signing you up."
 
+# Define a UserLogin resource for the 'login' endpoint
+# class UserSignUp(Resource):
+#     def post(self):
+        
+#         return 
+
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
 
