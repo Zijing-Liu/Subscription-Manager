@@ -296,15 +296,8 @@ def log_in():
 
 # Verify email and password on login screen
 def login_verify():
-<<<<<<< Updated upstream
-
-    # TESTING!!!
-    global email_text1
-
-=======
     global email_text1
     global password_text1
->>>>>>> Stashed changes
     email_text1 = email_verify.get()
     password_text1 = password_verify.get()
 
