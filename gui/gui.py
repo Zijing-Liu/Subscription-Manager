@@ -1,7 +1,7 @@
 # Access Tkinter modules
 from tkinter import *
 from tkinter.ttk import Combobox
-from tkcalendar import Calendar
+# from tkcalendar import Calendar
 
 # Access regular expressions
 import re
@@ -22,14 +22,15 @@ def getData():
     else:
         print('Request failed with status code:', response.status_code)
 
-# Make a post request to the backend api at the signup endpoint to pass the user input data to the backend database
-def signUp():
+# Make a post request to the backend signup endpoint to pass the user input data to the backend database
+def signUpReq():
     # Replace with the actual URL of your Flask endpoint
     url = 'http://localhost:8000/signup'
     data = {
         'name': name_text,
         'email': email_text,
-        'password_hashed': hashed_password_str
+        'password_hashed': hashed_password_str_g,
+        'salt': salt_g,
     }
 
     try:
@@ -38,22 +39,44 @@ def signUp():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
-# Make a post request to the backend api at the login endpoint, return the result of authenticaiton
-def logIn():
- # Replace with the actual URL of your Flask endpoint
-    url = 'http://localhost:8000/login'
-    data = {
-        'email': email_text1,
-        'password_hashed': password_text1
-    }
+        
+# Make a get request method to the login endpoint, pass the email_text1 as param
+def lognInReq(email_text1):
+    print("email is" + email_text1)
+    url = 'http://localhost:8000/login' 
+    params = {'email': email_text1}  # Pass the email as a parameter
+    print(params["email"])
+    response = requests.get(url, params = params)
 
-    try:
-        response = requests.post(url, json=data)
-        response.raise_for_status()  # Check for any errors
-    except requests.exceptions.RequestException as e:
-        print('Error:', e)
-
+    if response.status_code == 200:
+        print('printing the password stroed in the database' + response)
+        return response.text  # hashed password string
+    else:
+        print('Request failed with status code:', response.status_code)
 ################################################# HTTP requests end here
+
+#### helper funciton ####
+    # encryptPassword using bcrypt and return a hash value and a salt 
+def encryptPassword(password_text):
+    # converting password to array of bytes
+    bytes = password_text.encode('utf-8')
+    # generating the salt
+    salt = bcrypt.gensalt()
+    # Hashing the password
+    password_text_hashed = bcrypt.hashpw(bytes, salt)
+    # convert the passwrod from byte to string
+    hashed_password_str = password_text_hashed.decode('utf-8')
+    salt_str = salt.decode('utf-8')
+
+    encryption = {
+    'salt': salt_str,
+    'password_hashed': hashed_password_str
+    }
+    print(" The type of salt is: ")
+    print(type(encryption["salt"]))
+    print(type(encryption["password_hashed"]))
+    return encryption
+#### end of helper funciton ###
 
 
 
@@ -145,7 +168,8 @@ def sign_up():
 def register():
     global name_text
     global email_text
-    global hashed_password_str
+    global hashed_password_str_g
+    global salt_g
 
     # TESTING!!!
     # Set registered as a boolean operator to False
@@ -156,17 +180,8 @@ def register():
     name_text = name.get()
     email_text = email.get()
     password_text = password.get()
-    # converting password to array of bytes
-    bytes = password_text.encode('utf-8')
-    
-    # generating the salt
-    salt = bcrypt.gensalt()
-    
-    # Hashing the password
-    password_text_hashed = bcrypt.hashpw(bytes, salt)
 
-    hashed_password_str = password_text_hashed.decode('utf-8')
-
+    # check if the current input email already exisit in the user table, if so set registered to true
     curr_users_data = getData()
     existing_emails = []
     for row in curr_users_data:
@@ -220,13 +235,13 @@ def register():
         try_again_btn.pack(pady=20)
     # If not registered, write user info to the file
     else:
-        # file.write('Name: ' + name_text + " Email: " +
-        #            email_text + " Password: " + password_text + "\n")
-        # Close the file
-        # file.close()
+        # call encryptPassword function to encode the password_text user registered with, and store salt and hashed_password_str variables
+        encryption =  encryptPassword(password_text)
+        salt_g = encryption["salt"]
+        hashed_password_str_g =  encryption["password_hashed"]
 
         # send the post request to the backend server
-        signUp()
+        signUpReq()
         # Clear out the entry box
         name_entry.delete(0, END)
         email_entry.delete(0, END)
@@ -300,17 +315,33 @@ def login_verify():
     global password_text1
     email_text1 = email_verify.get()
     password_text1 = password_verify.get()
+    print(email_text1)
 
     # TESTING!!!
     # Loop through each line in the file, and check if the email and password entered match the records in the database
     # Set login as False by default
     login = False
-    for line in open('gui/credentials.txt', 'r').readlines():
-        login_info = line.split()
-        # If the email and password entered match the records in the database, set login to True
-        if email_text1 == login_info[3] and password_text1 == login_info[5]:
-            login = True
-            break
+    # for line in open('gui/credentials.txt', 'r').readlines():
+    #     login_info = line.split()
+    #     # If the email and password entered match the records in the database, set login to True
+    #     if email_text1 == login_info[3] and password_text1 == login_info[5]:
+    #         login = True
+    #         break
+
+    # get the sotre password_hashed_str from the database by calling the get method
+    password_hashed_str = lognInReq(email_text1)
+    print("!!!")
+    print(password_hashed_str)
+    # conver the str back to byte
+    hashed_password_bytes = password_hashed_str.encode('utf-8')
+    # encode the password that user input]
+    password_text1_bytes= password_text1.encode('utf-8')
+
+    # If the email and password entered match the records in the database, set login to True
+    if password_text1_bytes == hashed_password_bytes:
+        login = True
+
+
 
     # When the email and password are correct
     if login:

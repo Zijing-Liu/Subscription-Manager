@@ -12,6 +12,7 @@ api = Api(app)
 # define a function to connect to the sql database
 def get_db_connection():
     conn = sqlite3.connect('data.db')
+    # Enable the retrieval of rows as sqlite3.Row objects to achieve minimal memory overhead (pass-by-reference)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -37,11 +38,13 @@ class UserSignUp(Resource):
         name = usr_data.get('name')
         email = usr_data.get('email')
         password = usr_data.get('password_hashed')
+        salt = usr_data.get('salt')
         try:
             conn = get_db_connection()
             conn.execute('''INSERT OR REPLACE INTO User
-                (name, email, password_hashed) VALUES (?, ?, ?)''',
-                         (name, email, password))
+                (name, email, password_hashed, salt) VALUES (?, ?, ?, ?)''',
+                         (name, email, password, salt))
+            
             conn.commit()
             conn.close()
             return redirect('/signup')
@@ -51,14 +54,26 @@ class UserSignUp(Resource):
             return "Oops! There was an issue signing you up."
 
 # Define a UserLogin resource for the 'login' endpoint
-# class UserSignUp(Resource):
-#     def post(self):
+class UserLogIn(Resource):
+    def get(self, params):
+        email = params["email"]
+        conn = get_db_connection()
+        try:
+            hash = conn.execute('SELECT password_hashed, salt FROM USER WHERE email = ?', (email,)).fetchone()
+            if hash is None:
+                return "Email not found" 
+            password_hashed = hash[0]
+            salt = hash[1]
+            return (password_hashed, salt)
         
-#         return 
+        except Exception as e:
+            print("An error occurred:", str(e))
+            return "Oops! An error occurred when logging you in, please double-check your email."
+
 
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
-
+api.add_resource(UserLogIn, '/login')
 # start the server and the flask application
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
