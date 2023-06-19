@@ -1,9 +1,9 @@
-# Access Tkinter modules
+# Access modules
 from tkinter import *
 from tkinter.ttk import Combobox
 from tkcalendar import Calendar
-
-# Access regular expressions
+import tkinter as tk
+import datetime
 import re
 import json
 import requests
@@ -122,7 +122,16 @@ def sign_up():
                          width="26", height="2", command=register)
     sign_up_btn.pack()
 
+    # # Create spacing between sign up button and "Already have an account?" label
+    # Label(sign_up_window, text="", bg="#323232", fg="white").pack(pady=140)
 
+    # # Already have an account?
+    # login_label = Label(sign_up_window, text="Already have an account?", bg="#323232", fg="white")
+    # login_label.pack()
+    # # Create "Log in" button
+    # login_btn = Button(sign_up_window, text="Log in", width="12", height="2", command=log_in)
+    # login_btn.pack(pady=10)
+    
 
 # Register and record the new account information into the database
 def register():
@@ -267,6 +276,7 @@ def log_in():
     login_btn.pack(pady=20)
 
 
+
 # Verify email and password on login screen
 def login_verify():
 
@@ -289,6 +299,10 @@ def login_verify():
 
     # When the email and password are correct
     if login:
+        # Clear out the entry box
+        email_verify_entry.delete(0, END)
+        password_verify_entry.delete(0, END)
+        log_in_window.destroy()
         homepage()
     # When the email and/or password are incorrect
     # Prompt an error message
@@ -307,12 +321,14 @@ def login_verify():
 
 # Create a homepage
 def homepage():
-
+    cost = StringVar()
     selected_subscription_name = StringVar()
-    cost_entry = StringVar()
+    selected_billing_cycle = StringVar()
+    selected_starting_date = StringVar()
+    cost_value = StringVar()
 
     # Set screen position, size, title
-    homepage_window = Toplevel(log_in_window)
+    homepage_window = Toplevel(main_window)
     homepage_window.geometry("390x844")
     homepage_window.title('Homepage')
     homepage_window.configure(bg="#323232")  # Set background color
@@ -340,7 +356,7 @@ def homepage():
     homepage_panel = Frame(homepage_window)
     homepage_panel.configure(bg='#323232')
     homepage_panel.pack(pady=30)
-    
+
     # Subscription name dropdown
     # Create a list of options for the dropdown list
     subscription_name_options = ['Adobe Creative Cloud', 'AliExpress Premium', 'Amazon Prime', 'Apple Music', 'Apple TV+', 'Disney+', 'DoorDash', 'Google Workspace', 'Grubhub', 'HBO Max', 'Hulu', 'Microsoft 365', 'Netflix', 'Postmates', 'Spotify', 'Uber Eats', 'Walmart+', 'eBay Plus']
@@ -349,9 +365,10 @@ def homepage():
     subscription_name_label.grid(row=0, column=0)
     subscription_name_dropdown = Combobox(homepage_panel, values = subscription_name_options, state="readonly")
     # Set an initial value for the dropdown
-    subscription_name_dropdown.set('Select a subscription')
-    selected_subscription_name = subscription_name_dropdown.get()
+    subscription_name_dropdown.set(' Select a subscription')
     subscription_name_dropdown.grid(row=0, column=1)
+    
+    # subscription_name_dropdown.bind("<<ComboboxSelected>>", get_selected_subscription)
     
     # Spacing between input fields
     Label(homepage_panel, text="", bg="#323232", fg="white").grid(row=1)
@@ -359,11 +376,58 @@ def homepage():
     # Cost input
     cost_label = Label(homepage_panel, text="Cost: $ ", bg="#323232", fg="white")
     cost_label.grid(row=2, column=0)
-    cost_entry = Entry(homepage_panel,textvariable=cost_entry)
+    cost_entry = Entry(homepage_panel,textvariable= cost)
     cost_entry.grid(row=2, column=1)
 
     # Spacing between input fields
     Label(homepage_panel, text="", bg="#323232", fg="white").grid(row=3)
 
-    
+    # Starting date datepicker
+    # Create a label
+    starting_date_label = Label(homepage_panel, text="Starting date: ", bg="#323232", fg="white")
+    starting_date_label.grid(row=4, column=0)
+    # Get today's date
+    today = datetime.date.today()
+    # Create a calendar
+    starting_date_cal = Calendar(homepage_panel, selectmode='day', year=today.year, month=today.month, day=today.day, width=10, height=30, background='white', foreground='black', selectforeground='red')
+    starting_date_cal.grid(row=4, column=1)
+
+
+    # Spacing between input fields
+    Label(homepage_panel, text="", bg="#323232", fg="white").grid(row=5)
+
+    # Billing cycle dropdown
+    # Create a list of options for the dropdown list
+    billing_cycle_options = ['weekly', 'monthly', '3-months', '6-months', 'annually']
+    # Create a combobox widget and a label
+    billing_cycle_options_label = Label(homepage_panel, text="Billing cycle: ", bg="#323232", fg="white")
+    billing_cycle_options_label.grid(row=6, column=0)
+    billing_cycle_dropdown = Combobox(homepage_panel, values = billing_cycle_options, state="readonly")
+    # Set an initial value for the dropdown
+    billing_cycle_dropdown.set(' Select a billing cycle')
+    billing_cycle_dropdown.grid(row=6, column=1)
+
+    # Get the variables
+    def get_create_subscritpion_data():
+        selected_subscription_name = subscription_name_dropdown.get()
+        cost_value = cost.get()
+        selected_starting_date = starting_date_cal.get_date()
+        selected_billing_cycle = billing_cycle_dropdown.get()
+        print(selected_subscription_name, cost_value, selected_billing_cycle, selected_starting_date)
+
+    # Submit subscription and call the "get_create_subscription_date()" function
+    submit_subscription_btn = Button(homepage_window, text="Submit", width="26", height="2", command=get_create_subscritpion_data)
+    submit_subscription_btn.pack(pady=20)
+
+    # # Create a bottom nav bar
+    # # Create a frame
+    # bottom_nav_frame = tk.Frame(homepage_window, width=390, height=100)
+    # bottom_nav_frame.configure(width=390, height=100)
+    # bottom_nav_frame.pack(side="bottom", fill="x")
+    # # Nav tabs
+    # home_button = tk.Button(bottom_nav_frame, text="Home", bg="blue", fg="white", width=80)
+    # home_button.pack(side="left")
+    # dashboard_button = tk.Button(bottom_nav_frame, text="Dashboard", bg="white", fg="black", width=80)
+    # dashboard_button.pack(side="right")
+
 main_menu()
