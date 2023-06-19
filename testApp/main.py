@@ -3,7 +3,7 @@ from flask import Flask, request, redirect
 import tkinter as tk
 from flask_restful import Api, Resource
 # from flask_sqlalchemy import SQLAlchemy
-import sqlite3, bcrypt
+import sqlite3, bcrypt, json
 
 # initialize this flask application, api
 app = Flask(__name__)
@@ -84,19 +84,28 @@ class UserLogIn(Resource):
         user_email = login_data.get("email")
         user_password = login_data.get("password")
         conn = get_db_connection()
-        
+
         try:
-            hash = conn.execute('SELECT password_hashed, salt FROM USER WHERE email = ?', (user_email,)).fetchone()
+            hash = conn.execute('SELECT name, password_hashed FROM USER WHERE email = ?', (user_email,)).fetchone()
             if hash is None:
                 return "Email not found" 
-            password_hashed = hash[0]
+            tuple(hash) 
+            user_name = hash[0]
+            password_hashed = hash[1]
 
             # conver the str back to byte
             hashed_password_bytes = password_hashed.encode('utf-8')
             # encode the password that user input]
             user_password_bytes= user_password.encode('utf-8')
-            return user_password_bytes == hashed_password_bytes
-                
+            login_status = bcrypt.checkpw(user_password_bytes, hashed_password_bytes)
+
+            response = {
+                'login_status': login_status,
+                'user_name': user_name, 
+                'user_password': user_password_bytes.decode('utf-8'),
+                'hash_password': hashed_password_bytes.decode('utf-8')
+                }
+            return response
         
         except Exception as e:
             print("An error occurred:", str(e))

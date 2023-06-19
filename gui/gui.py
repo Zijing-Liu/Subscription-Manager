@@ -10,7 +10,7 @@ import requests
 # TESTING!!!
 # Access local
 import os
-import bcrypt
+
 
 
 ################################################# HTTP requests start here, communicating to the backend server
@@ -304,18 +304,28 @@ def login_verify():
     print(email_text1)
 
     # Set login as False by default
-    login = False
+    # login = False
 
     # if the password verification is successcual , recieve response result (true) from the backend and assign it to the login variable
-    login = logInReq()
+    login_response = logInReq()
+    login_json = login_response.json()
+    login = login_json['login_status']
+    login_user_name = login_json['user_name']
     
+    print(type(login_json))
+    print(login_user_name)
+    print(login)
+    print(login_json['user_password'])
+    print(login_json['hash_password'])
+
+
     # if login is set to ture, open the homepage
     if login:
         # Clear out the entry box
         email_verify_entry.delete(0, END)
         password_verify_entry.delete(0, END)
         log_in_window.destroy()
-        homepage()
+        homepage(login_user_name)
     # When the email and/or password are incorrect
     # Prompt an error message
     else:
@@ -332,7 +342,7 @@ def login_verify():
 
 
 # Create a homepage
-def homepage():
+def homepage(login_user_name):
     cost = StringVar()
     selected_subscription_name = StringVar()
     selected_billing_cycle = StringVar()
@@ -348,11 +358,13 @@ def homepage():
     # WARNING - TESTING / WORK IN PROGRESS
     # !!! NEED TO EXTRACT THE CORRESPONDING 'NAME' DATA FROM DB !!!
     # !!! ADD THE EXTRACTED 'NAME' DATA AFTER TEXT='HEY' TO CREATE A PERSONALIZED GREETING MESSAGE !!!
-    file = open("gui/credentials.txt", "a")
-    for line in open('gui/credentials.txt', 'r').readlines():
-        login_info = line.split()
-        if email_text1 == login_info[3]:
-            name_text1= login_info[1]
+    # file = open("gui/credentials.txt", "a")
+    # for line in open('gui/credentials.txt', 'r').readlines():
+    #     login_info = line.split()
+    #     if email_text1 == login_info[3]:
+    #         name_text1= login_info[1]
+
+    name_text1 = login_user_name
 
     # Heading/Wecloming message
     label4 = Label(homepage_window, text="Hey " + name_text1 + " \U0001F44B", font='Helvetica 28 bold', fg='white')
