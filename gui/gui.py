@@ -10,32 +10,53 @@ import requests
 # TESTING!!!
 # Access local
 import os
+import bcrypt
 
-################################################# HTTP requests communicating to the backend server
+
+################################################# HTTP requests start here, communicating to the backend server
 # Make a GET request to the /signup endpoint of the web app, and return the response data
-def get_data():
+def getData():
     response = requests.get('http://localhost:8000/signup')
     if response.status_code == 200:
         return response  # a list of tuple
     else:
         print('Request failed with status code:', response.status_code)
 
-# Make a post request to the backend api at the signup endpoint and pass the user input data as json data
-def send_request():
+# Make a post request to the backend signup endpoint to pass the user input data to the backend database
+def signUpReq():
     # Replace with the actual URL of your Flask endpoint
     url = 'http://localhost:8000/signup'
     data = {
         'name': name_text,
         'email': email_text,
-        'password_hashed': password_text
+        'password_plain': password_text,
     }
 
     try:
         response = requests.post(url, json=data)
         response.raise_for_status()  # Check for any errors
-        # print(response.json())  # Print the response data
     except requests.exceptions.RequestException as e:
         print('Error:', e)
+
+        
+# Make a get request method to the login endpoint, pass the email_text1 as param
+def logInReq():
+    url = 'http://localhost:8000/login' 
+    data = {'email': email_text1,
+            'password': password_text1
+            }  
+
+    response = requests.post(url)
+    try:
+        response = requests.post(url, json=data)
+        response.raise_for_status()  # Check for any errors
+        return response
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+################################################# HTTP requests end here
+
+
+
 
 
 # Create a landing screen named main_menu
@@ -139,6 +160,7 @@ def register():
     global email_text
     global password_text
 
+
     # TESTING!!!
     # Set registered as a boolean operator to False
     # Set "not registered" as default
@@ -149,10 +171,11 @@ def register():
     email_text = email.get()
     password_text = password.get()
 
-    curr_users_data = get_data()
+    # check if the current input email already exisit in the user table, if so set registered to true
+    curr_users_data = getData()
     existing_emails = []
     for row in curr_users_data:
-        existing_emails.append(row[2])
+        existing_emails.append(row[0])
     if (email_text in existing_emails):
         registered = True
 
@@ -202,13 +225,8 @@ def register():
         try_again_btn.pack(pady=20)
     # If not registered, write user info to the file
     else:
-        # file.write('Name: ' + name_text + " Email: " +
-        #            email_text + " Password: " + password_text + "\n")
-        # Close the file
-        # file.close()
-
         # send the post request to the backend server
-        send_request()
+        signUpReq()
         # Clear out the entry box
         name_entry.delete(0, END)
         email_entry.delete(0, END)
@@ -279,25 +297,19 @@ def log_in():
 
 # Verify email and password on login screen
 def login_verify():
-
-    # TESTING!!!
     global email_text1
-
+    global password_text1
     email_text1 = email_verify.get()
     password_text1 = password_verify.get()
+    print(email_text1)
 
-    # TESTING!!!
-    # Loop through each line in the file, and check if the email and password entered match the records in the database
     # Set login as False by default
     login = False
-    for line in open('gui/credentials.txt', 'r').readlines():
-        login_info = line.split()
-        # If the email and password entered match the records in the database, set login to True
-        if email_text1 == login_info[3] and password_text1 == login_info[5]:
-            login = True
-            break
 
-    # When the email and password are correct
+    # if the password verification is successcual , recieve response result (true) from the backend and assign it to the login variable
+    login = logInReq()
+    
+    # if login is set to ture, open the homepage
     if login:
         # Clear out the entry box
         email_verify_entry.delete(0, END)
