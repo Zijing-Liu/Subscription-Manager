@@ -53,6 +53,7 @@ class UserSignUp(Resource):
             conn.close()
             return users_list
         except:
+            #TODO: change this into an error response so that the gui can display the detailed instructions
             return "Opps! There was an issue getting the data from the database 🫠"
 
     # define the post method that get the data user posted and write into the data.db database, redirect to the signup page
@@ -75,6 +76,7 @@ class UserSignUp(Resource):
 
         except Exception as e:
             print("An error occurred:", str(e))
+            #TODO: change this into an error response so that the gui can display the detailed instructions
             return "Oops! There was an issue signing you up."
 
 # Define a UserLogin resource for the 'login' endpoint
@@ -86,13 +88,14 @@ class UserLogIn(Resource):
         conn = get_db_connection()
 
         try:
-            hash = conn.execute('SELECT name, password_hashed FROM USER WHERE email = ?', (user_email,)).fetchone()
+            hash = conn.execute('SELECT name, password_hashed, email FROM USER WHERE email = ?', (user_email,)).fetchone()
             if hash is None:
                 return "Email not found" 
             tuple(hash) 
             user_name = hash[0]
             password_hashed = hash[1]
-
+            user_email = hash[2]
+            conn.close()
             # conver the str back to byte
             hashed_password_bytes = password_hashed.encode('utf-8')
             # encode the password that user input]
@@ -102,6 +105,7 @@ class UserLogIn(Resource):
             response = {
                 'login_status': login_status,
                 'user_name': user_name, 
+                'user_email': user_email,
                 'user_password': user_password_bytes.decode('utf-8'),
                 'hash_password': hashed_password_bytes.decode('utf-8')
                 }
@@ -109,12 +113,106 @@ class UserLogIn(Resource):
         
         except Exception as e:
             print("An error occurred:", str(e))
+            #TODO: change this into an error response so that the gui can display the detailed instructions
             return "Oops! An error occurred when logging you in, please double-check your email."
+
+class Homepage(Resource):
+    def post(self):
+        # parse the post request data as json
+        new_subcription = request.get_json()
+        # get each value of the json data and write into new variables
+        email = new_subcription.get('user_email')
+        sub_name = new_subcription.get('sub_name')
+        amount = new_subcription.get('amount')
+        date = new_subcription.get('date')
+        subscription_cycle = new_subcription.get('subscription_cycle')
+        print(sub_name + " " + email)
+
+        # use the email to get the user id from the User table
+        conn = get_db_connection()
+        print("connected to database")
+        user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
+        # convert the row object to tuple
+        user_id = tuple(user_id_row)[0]
+        if user_id_row[0] == None:
+            #TODO: change this into an error response so that the gui can display the detailed instructions
+            print("email not found")
+            return {
+                'success': False,
+                'msg': "Email not found"
+            }
+
+        print("Found the user id: " + str(user_id))
+         
+        # use the sub_name to get the sub_id from the Company table
+        co_id_row = conn.execute('SELECT co_id FROM Company WHERE name = ?', (sub_name,)).fetchone()
+
+        # convert the row object to tuple
+        co_id = tuple(co_id_row)[0] 
+        print(co_id) 
+        if co_id is None:
+            #TODO: change this into an error response so that the gui can display the detailed instructions
+            print("Subscription service provider not found") 
+            return {
+                'success': False,
+                'msg': "Service not found."
+            }
+        
+        print("Found the subscription service provider: " + str(co_id))
+        # check if the current user already subscribed to this company
+        co_id_tuple = []
+        for row in conn.execute('SELECT co_id FROM Subscription  WHERE user_id = ?', (user_id,)).fetchall():
+            co_id_tuple.append(row)
+        # convert a list of row objects into a list of tuple
+        co_id_tuple = [tuple(row) for row in co_id_tuple]
+        # convert a list of tuple into a list of number
+        
+        # if user has already subscribed to the same service, fail
+        for id in co_id_tuple:
+            if (id[0] == co_id):
+                print("You already subscribed to this service, do you want to update your current subscription list?")
+                response1 = {
+                    'success': True,
+                    'msg': "Duplicated Service.",
+                }
+                print(response1)
+                return response1
+
+        else:
+            print("Starting to write to the database")
+            # write the new subscription data into the database, if success, return json data passing true
+            try:
+                conn.execute('''INSERT OR REPLACE INTO Subscription
+                    (user_id, co_id, start_date, amount, subscription_cycle) VALUES (?, ?, ?, ?, ?)''',
+                                (user_id, co_id, date, amount, subscription_cycle))
+                conn.commit()
+                conn.close()
+                print("success written to database.")
+
+
+                response2  = {
+                    'success': True,
+                    'msg': "New subscription added."
+                }
+                print(response2)
+                return response2
+
+            except Exception as e:
+                print("An error occurred:", str(e))
+                response3 = {
+                    'success': False,
+                    'msg': str(e)
+                }
+
+                print(response3)
+                #TODO: change this into an error response so that the gui can display the detailed instructions
+                return response3
 
 
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
 api.add_resource(UserLogIn, '/login')
+api.add_resource(Homepage, '/homepage')
 # start the server and the flask application
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

@@ -15,7 +15,7 @@ import os
 
 ################################################# HTTP requests start here, communicating to the backend server
 # Make a GET request to the /signup endpoint of the web app, and return the response data
-def getData():
+def getUserData():
     response = requests.get('http://localhost:8000/signup')
     if response.status_code == 200:
         return response  # a list of tuple
@@ -24,7 +24,6 @@ def getData():
 
 # Make a post request to the backend signup endpoint to pass the user input data to the backend database
 def signUpReq():
-    # Replace with the actual URL of your Flask endpoint
     url = 'http://localhost:8000/signup'
     data = {
         'name': name_text,
@@ -38,7 +37,7 @@ def signUpReq():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
-        
+    
 # Make a get request method to the login endpoint, pass the email_text1 as param
 def logInReq():
     url = 'http://localhost:8000/login' 
@@ -53,6 +52,24 @@ def logInReq():
         return response
     except requests.exceptions.RequestException as e:
         print('Error:', e)
+
+def postNewSubscription():
+    url = 'http://localhost:8000/homepage'
+    new_subcription = {
+        'user_email': login_user_email,
+        'sub_name': selected_subscription_name,
+        'amount': cost_value,
+        'date': selected_starting_date,
+        'subscription_cycle': selected_billing_cycle,
+    }
+    try:
+        response = requests.post(url, json = new_subcription)
+        response.raise_for_status() # Check for any errors
+        print(response.status_code)
+        return response 
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
 ################################################# HTTP requests end here
 
 
@@ -172,7 +189,7 @@ def register():
     password_text = password.get()
 
     # check if the current input email already exisit in the user table, if so set registered to true
-    curr_users_data = getData()
+    curr_users_data = getUserData()
     existing_emails = []
     for row in curr_users_data:
         existing_emails.append(row[0])
@@ -311,12 +328,8 @@ def login_verify():
     login_json = login_response.json()
     login = login_json['login_status']
     login_user_name = login_json['user_name']
-    
-    print(type(login_json))
-    print(login_user_name)
-    print(login)
-    print(login_json['user_password'])
-    print(login_json['hash_password'])
+    login_user_email = login_json['user_email']
+
 
 
     # if login is set to ture, open the homepage
@@ -325,7 +338,7 @@ def login_verify():
         email_verify_entry.delete(0, END)
         password_verify_entry.delete(0, END)
         log_in_window.destroy()
-        homepage(login_user_name)
+        homepage(login_user_name, login_user_email)
     # When the email and/or password are incorrect
     # Prompt an error message
     else:
@@ -342,7 +355,9 @@ def login_verify():
 
 
 # Create a homepage
-def homepage(login_user_name):
+def homepage(login_user_name, user_email):
+    global login_user_email
+    login_user_email = user_email
     cost = StringVar()
     selected_subscription_name = StringVar()
     selected_billing_cycle = StringVar()
@@ -365,7 +380,7 @@ def homepage(login_user_name):
     #         name_text1= login_info[1]
 
     name_text1 = login_user_name
-
+    login_user_email = login_user_email
     # Heading/Wecloming message
     label4 = Label(homepage_window, text="Hey " + name_text1 + " \U0001F44B", font='Helvetica 28 bold', fg='white')
     label4.pack(fill=X, pady=40)
@@ -432,15 +447,24 @@ def homepage(login_user_name):
     billing_cycle_dropdown.grid(row=6, column=1)
 
     # Get the variables
-    def get_create_subscritpion_data():
+    def postSubscriptionData():
+        global selected_subscription_name, cost_value,selected_starting_date,selected_billing_cycle
         selected_subscription_name = subscription_name_dropdown.get()
         cost_value = cost.get()
         selected_starting_date = starting_date_cal.get_date()
         selected_billing_cycle = billing_cycle_dropdown.get()
-        print(selected_subscription_name, cost_value, selected_billing_cycle, selected_starting_date)
+
+        submission_response = postNewSubscription()
+        submission_json = submission_response.json()
+        print(type(submission_response))
+        submission_success = submission_json['success']
+        submission_msg = submission_json['msg']
+        print(submission_success)
+        print(submission_msg)
+        
 
     # Submit subscription and call the "get_create_subscription_date()" function
-    submit_subscription_btn = Button(homepage_window, text="Submit", width="26", height="2", command=get_create_subscritpion_data)
+    submit_subscription_btn = Button(homepage_window, text="Submit", width="26", height="2", command=postSubscriptionData)
     submit_subscription_btn.pack(pady=20)
 
     # # Create a bottom nav bar
