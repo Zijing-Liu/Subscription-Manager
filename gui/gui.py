@@ -38,7 +38,7 @@ def signUpReq():
         print('Error:', e)
 
     
-# Make a get request method to the login endpoint, pass the email_text1 as param
+# Make a get request method to the login endpoint
 def logInReq():
     url = 'http://localhost:8000/login' 
     data = {'email': email_text1,
@@ -53,6 +53,7 @@ def logInReq():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
+# Make a post request method to the Homepage endpoint
 def postNewSubscription():
     url = 'http://localhost:8000/homepage'
     new_subcription = {
@@ -65,7 +66,7 @@ def postNewSubscription():
     try:
         response = requests.post(url, json = new_subcription)
         response.raise_for_status() # Check for any errors
-        print(response.status_code)
+        # print(response.status_code)
         return response 
     except requests.exceptions.RequestException as e:
         print('Error:', e)
@@ -318,7 +319,6 @@ def login_verify():
     global password_text1
     email_text1 = email_verify.get()
     password_text1 = password_verify.get()
-    print(email_text1)
 
     # Set login as False by default
     # login = False
@@ -454,13 +454,13 @@ def homepage(login_user_name, user_email):
         selected_starting_date = starting_date_cal.get_date()
         selected_billing_cycle = billing_cycle_dropdown.get()
 
+        # get the response after post the submision data to the backend, read as json data, and get the success and msg variables
         submission_response = postNewSubscription()
         submission_json = submission_response.json()
-        print(type(submission_response))
+        # getting the repsonse of the submission action from the backend
         submission_success = submission_json['success']
         submission_msg = submission_json['msg']
-        print(submission_success)
-        print(submission_msg)
+    ###### Implement the prompt window to ask if user want to add more subscription data or view the dashboard
         
 
     # Submit subscription and call the "get_create_subscription_date()" function

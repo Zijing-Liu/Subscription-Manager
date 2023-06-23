@@ -116,6 +116,7 @@ class UserLogIn(Resource):
             #TODO: change this into an error response so that the gui can display the detailed instructions
             return "Oops! An error occurred when logging you in, please double-check your email."
 
+# Define a Homepgae resource for the 'homepage' endpoint
 class Homepage(Resource):
     def post(self):
         # parse the post request data as json
@@ -134,40 +135,38 @@ class Homepage(Resource):
         user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
         # convert the row object to tuple
         user_id = tuple(user_id_row)[0]
+
+        # if the user is not found in the database (not loged in), return false and the error message
         if user_id_row[0] == None:
-            #TODO: change this into an error response so that the gui can display the detailed instructions
-            print("email not found")
             return {
                 'success': False,
                 'msg': "Email not found"
             }
+        
 
-        print("Found the user id: " + str(user_id))
-         
+        ## check if the sub_name is valid
         # use the sub_name to get the sub_id from the Company table
         co_id_row = conn.execute('SELECT co_id FROM Company WHERE name = ?', (sub_name,)).fetchone()
-
         # convert the row object to tuple
         co_id = tuple(co_id_row)[0] 
         print(co_id) 
+        # if service name input is not found in the Company table (invalid input of company), return false and error message
         if co_id is None:
-            #TODO: change this into an error response so that the gui can display the detailed instructions
             print("Subscription service provider not found") 
             return {
                 'success': False,
                 'msg': "Service not found."
             }
-        
         print("Found the subscription service provider: " + str(co_id))
-        # check if the current user already subscribed to this company
+
+        ## check if the current user already subscribed to this company
         co_id_tuple = []
         for row in conn.execute('SELECT co_id FROM Subscription  WHERE user_id = ?', (user_id,)).fetchall():
             co_id_tuple.append(row)
         # convert a list of row objects into a list of tuple
         co_id_tuple = [tuple(row) for row in co_id_tuple]
         # convert a list of tuple into a list of number
-        
-        # if user has already subscribed to the same service, fail
+        # if user has already subscribed to the same service, return false and error message
         for id in co_id_tuple:
             if (id[0] == co_id):
                 print("You already subscribed to this service, do you want to update your current subscription list?")
@@ -188,31 +187,40 @@ class Homepage(Resource):
                 conn.commit()
                 conn.close()
                 print("success written to database.")
-
-
                 response2  = {
                     'success': True,
                     'msg': "New subscription added."
                 }
                 print(response2)
                 return response2
-
+            # return false and err message if any other error happened during writing data into the database
             except Exception as e:
                 print("An error occurred:", str(e))
                 response3 = {
                     'success': False,
                     'msg': str(e)
                 }
-
                 print(response3)
-                #TODO: change this into an error response so that the gui can display the detailed instructions
                 return response3
+
+# define a Dashboard resource to '/dashboard' endpoint
+class Dashboard(Resource):
+    # get method to get all the subscription data from the database and send the response to the GUI for display
+    def get(self):
+        return 
+    # post a deletion request to delete the subscription data in the database
+    def post(self):
+        return
+
+
+
 
 
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
 api.add_resource(UserLogIn, '/login')
 api.add_resource(Homepage, '/homepage')
+api.add_resource(Dashboard, '/dashboard')
 # start the server and the flask application
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
