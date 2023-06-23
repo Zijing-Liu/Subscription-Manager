@@ -60,7 +60,7 @@ def logInReq():
 
 
 # Create a landing screen named main_menu
-def main_menu():
+def mainMenu():
     global main_window
     main_window = Tk()
     # Set screen size, title, heading
@@ -73,16 +73,16 @@ def main_menu():
     label1.pack(fill=X, pady=40)
     # Create a log in button and a sign up button
     login_btn = Button(main_window, text="Log In",
-                       width="26", height="2", command=log_in)
+                       width="26", height="2", command=logIn)
     login_btn.pack(pady=20)
     signup_btn = Button(main_window, text="Sign up",
-                        width="26", height="2", command=sign_up)
+                        width="26", height="2", command=signUp)
     signup_btn.pack(pady=20)
     main_window.mainloop()
 
 
 # Create a sign up screen
-def sign_up():
+def signUp():
     # Make variables global so that they are retrievable in other functions
     global name
     global email
@@ -180,11 +180,10 @@ def register():
         registered = True
 
     # Define a valid email pattern using regular expressions
-    valid_email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    validEmailPattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
 
     # If some information is missing, alert users
     if name_text == "" or email_text == "" or password_text == "":
-        # file.close()
         sign_up_missing_info_window = Toplevel(sign_up_window)
         sign_up_missing_info_window.geometry('300x300')
         sign_up_missing_info_window.title('Missing info')
@@ -197,8 +196,7 @@ def register():
                                height="2", command=lambda: sign_up_missing_info_window.destroy())
         try_again_btn.pack(pady=20)
     # Check if email input is valid
-    elif not re.match(valid_email_pattern, email_text):
-        # file.close()
+    elif not re.match(validEmailPattern, email_text):
         sign_up_invalid_email_window = Toplevel(sign_up_window)
         sign_up_invalid_email_window.geometry('300x300')
         sign_up_invalid_email_window.title('Invalid Email')
@@ -245,7 +243,7 @@ def register():
 
 
 # Create a log in screen
-def log_in():
+def logIn():
     # Make variables global
     global email_verify
     global email_verify_entry
@@ -290,13 +288,13 @@ def log_in():
 
     # Log in button
     login_btn = Button(log_in_window, text="Log in",
-                       width="26", height="2", command=login_verify)
+                       width="26", height="2", command=loginVerify)
     login_btn.pack(pady=20)
 
 
 
 # Verify email and password on login screen
-def login_verify():
+def loginVerify():
     global email_text1
     global password_text1
     email_text1 = email_verify.get()
@@ -318,9 +316,21 @@ def login_verify():
     print(login_json['user_password'])
     print(login_json['hash_password'])
 
-
-    # if login is set to ture, open the homepage
-    if login:
+    # If inputs are blank
+    if len(email_text1) == 0 or len(password_text1) == 0: 
+        log_in_missing_info_window = Toplevel(log_in_window)
+        log_in_missing_info_window.geometry('300x300')
+        log_in_missing_info_window.title('Missing info')
+        log_in_missing_info_window.configure(
+            bg="#323232")  # Set background color
+        Label(log_in_missing_info_window, text="Something is missing \U0001F494",
+              font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+        # Try again button
+        try_again_btn = Button(log_in_missing_info_window, text="Try again", width="26",
+                               height="2", command=lambda: log_in_missing_info_window.destroy())
+        try_again_btn.pack(pady=20)
+    # if login is set to ture
+    elif login:
         # Clear out the entry box
         email_verify_entry.delete(0, END)
         password_verify_entry.delete(0, END)
@@ -354,15 +364,6 @@ def homepage(login_user_name):
     homepage_window.geometry("390x844")
     homepage_window.title('Homepage')
     homepage_window.configure(bg="#323232")  # Set background color
-
-    # WARNING - TESTING / WORK IN PROGRESS
-    # !!! NEED TO EXTRACT THE CORRESPONDING 'NAME' DATA FROM DB !!!
-    # !!! ADD THE EXTRACTED 'NAME' DATA AFTER TEXT='HEY' TO CREATE A PERSONALIZED GREETING MESSAGE !!!
-    # file = open("gui/credentials.txt", "a")
-    # for line in open('gui/credentials.txt', 'r').readlines():
-    #     login_info = line.split()
-    #     if email_text1 == login_info[3]:
-    #         name_text1= login_info[1]
 
     name_text1 = login_user_name
 
@@ -431,27 +432,46 @@ def homepage(login_user_name):
     billing_cycle_dropdown.set(' Select a billing cycle')
     billing_cycle_dropdown.grid(row=6, column=1)
 
-    # Get the variables
-    def get_create_subscritpion_data():
+    # Define a valid cost pattern
+    validCostPattern = r'^\d+(\.\d{1,2})?$'
+
+    # Validation for submitting subscriptions
+    def submitValidation():
+        # Get the variables
         selected_subscription_name = subscription_name_dropdown.get()
         cost_value = cost.get()
         selected_starting_date = starting_date_cal.get_date()
         selected_billing_cycle = billing_cycle_dropdown.get()
-        print(selected_subscription_name, cost_value, selected_billing_cycle, selected_starting_date)
+
+        # If the inputs are empty, prompt an alert message
+        if selected_subscription_name == " Select a subscription" or cost_value == "" or selected_billing_cycle == " Select a billing cycle":
+            submit_missing_window = Toplevel(homepage_window)
+            submit_missing_window.geometry('300x300')
+            submit_missing_window.title('Oops')
+            submit_missing_window.configure(bg="#323232")  # Set background color
+            Label(submit_missing_window, text="Something is missing \U0001F494", font='Helvetica 20 bold', bg="#323232", fg="white").pack(fill=X, pady=40)
+            # Try again button
+            try_again_btn = Button(submit_missing_window, text="Try again", width="26", height="2", command=lambda: submit_missing_window.destroy())
+            try_again_btn.pack(pady=20)
+
+        # If the cost input is invalid, prompt an error message
+        elif not re.match(validCostPattern, cost_value):
+            submit_invalid_window = Toplevel(homepage_window)
+            submit_invalid_window.geometry('300x300')
+            submit_invalid_window.title('Error')
+            submit_invalid_window.configure(bg="#323232")  # Set background color
+            Label(submit_invalid_window, text="Invalid cost input \U0001F92F", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+            # Try again button
+            try_again_btn = Button(submit_invalid_window, text="Try again", width="26", height="2", command=lambda: submit_invalid_window.destroy())
+            try_again_btn.pack(pady=20)
+        
+        # If the service name has already entered
+        
 
     # Submit subscription and call the "get_create_subscription_date()" function
-    submit_subscription_btn = Button(homepage_window, text="Submit", width="26", height="2", command=get_create_subscritpion_data)
+    submit_subscription_btn = Button(homepage_window, text="Submit", width="26", height="2", command=submitValidation)
     submit_subscription_btn.pack(pady=20)
 
-    # # Create a bottom nav bar
-    # # Create a frame
-    # bottom_nav_frame = tk.Frame(homepage_window, width=390, height=100)
-    # bottom_nav_frame.configure(width=390, height=100)
-    # bottom_nav_frame.pack(side="bottom", fill="x")
-    # # Nav tabs
-    # home_button = tk.Button(bottom_nav_frame, text="Home", bg="blue", fg="white", width=80)
-    # home_button.pack(side="left")
-    # dashboard_button = tk.Button(bottom_nav_frame, text="Dashboard", bg="white", fg="black", width=80)
-    # dashboard_button.pack(side="right")
 
-main_menu()
+
+mainMenu()
