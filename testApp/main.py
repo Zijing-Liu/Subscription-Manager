@@ -171,7 +171,7 @@ class Homepage(Resource):
             if (id[0] == co_id):
                 print("You already subscribed to this service, do you want to update your current subscription list?")
                 response1 = {
-                    'success': True,
+                    'success': False,
                     'msg': "Duplicated Service.",
                 }
                 print(response1)
@@ -186,7 +186,7 @@ class Homepage(Resource):
                                 (user_id, co_id, date, amount, subscription_cycle))
                 conn.commit()
                 conn.close()
-                print("success written to database.")
+                print("Successfully written to database.")
                 response2  = {
                     'success': True,
                     'msg': "New subscription added."

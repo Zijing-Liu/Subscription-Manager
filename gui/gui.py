@@ -2,12 +2,12 @@
 from tkinter import *
 from tkinter.ttk import Combobox
 from tkcalendar import Calendar
+from tkinter import ttk
 import tkinter as tk
 import datetime
 import re
 import json
 import requests
-# TESTING!!!
 # Access local
 import os
 
@@ -85,16 +85,13 @@ def mainMenu():
     main_window.geometry("390x844")
     main_window.title("Subscription Manager")
     main_window.configure(bg="#323232")  # Set background color
-    label1 = Label(main_window, text="Welcome \U0001F44B",
-                   font="Helvetica 28 bold", fg="white")
+    label1 = Label(main_window, text="Welcome \U0001F44B", font="Helvetica 28 bold", fg="white")
     label1.configure(bg="#323232")  # Set background color of label
     label1.pack(fill=X, pady=40)
     # Create a log in button and a sign up button
-    login_btn = Button(main_window, text="Log In",
-                       width="26", height="2", command=logIn)
+    login_btn = Button(main_window, text="Log In", width="26", height="2", command=logIn)
     login_btn.pack(pady=20)
-    signup_btn = Button(main_window, text="Sign up",
-                        width="26", height="2", command=signUp)
+    signup_btn = Button(main_window, text="Sign up", width="26", height="2", command=signUp)
     signup_btn.pack(pady=20)
     main_window.mainloop()
 
@@ -122,8 +119,7 @@ def signUp():
     password = StringVar()
 
     # Heading
-    label2 = Label(sign_up_window, text="Sign up \U0001F511",
-                   font='Helvetica 28 bold', fg='white')
+    label2 = Label(sign_up_window, text="Sign up \U0001F511", font='Helvetica 28 bold', fg='white')
     label2.pack(fill=X, pady=40)
     label2.configure(bg='#323232')
 
@@ -131,8 +127,7 @@ def signUp():
     user_info_panel = Frame(sign_up_window)
     user_info_panel.configure(bg="#323232")  # Set background color of label
     user_info_panel.pack(pady=30)
-    name_label = Label(user_info_panel, text="Name: ",
-                       bg="#323232", fg="white")
+    name_label = Label(user_info_panel, text="Name: ", bg="#323232", fg="white")
     name_label.grid(row=0, column=0)
     name_entry = Entry(user_info_panel, textvariable=name)
     name_entry.grid(row=0, column=1)
@@ -141,8 +136,7 @@ def signUp():
     Label(user_info_panel, text="", bg="#323232", fg="white").grid(row=1)
 
     # Email input
-    email_label = Label(user_info_panel, text="Email: ",
-                        bg="#323232", fg="white")
+    email_label = Label(user_info_panel, text="Email: ", bg="#323232", fg="white")
     email_label.grid(row=2, column=0)
     email_entry = Entry(user_info_panel, textvariable=email)
     email_entry.grid(row=2, column=1)
@@ -157,19 +151,8 @@ def signUp():
     password_entry = Entry(user_info_panel, textvariable=password, show='*')
     password_entry.grid(row=4, column=1)
     # Create a sign up button
-    sign_up_btn = Button(sign_up_window, text="Sign up",
-                         width="26", height="2", command=register)
+    sign_up_btn = Button(sign_up_window, text="Sign up", width="26", height="2", command=register)
     sign_up_btn.pack()
-
-    # # Create spacing between sign up button and "Already have an account?" label
-    # Label(sign_up_window, text="", bg="#323232", fg="white").pack(pady=140)
-
-    # # Already have an account?
-    # login_label = Label(sign_up_window, text="Already have an account?", bg="#323232", fg="white")
-    # login_label.pack()
-    # # Create "Log in" button
-    # login_btn = Button(sign_up_window, text="Log in", width="12", height="2", command=log_in)
-    # login_btn.pack(pady=10)
     
 
 # Register and record the new account information into the database
@@ -179,7 +162,6 @@ def register():
     global password_text
 
 
-    # TESTING!!!
     # Set registered as a boolean operator to False
     # Set "not registered" as default
     registered = False
@@ -205,13 +187,10 @@ def register():
         sign_up_missing_info_window = Toplevel(sign_up_window)
         sign_up_missing_info_window.geometry('300x300')
         sign_up_missing_info_window.title('Missing info')
-        sign_up_missing_info_window.configure(
-            bg="#323232")  # Set background color
-        Label(sign_up_missing_info_window, text="Something is missing \U0001F494",
-              font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+        sign_up_missing_info_window.configure(bg="#323232")  # Set background color
+        Label(sign_up_missing_info_window, text="Something is missing \U0001F494", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
         # Try again button
-        try_again_btn = Button(sign_up_missing_info_window, text="Try again", width="26",
-                               height="2", command=lambda: sign_up_missing_info_window.destroy())
+        try_again_btn = Button(sign_up_missing_info_window, text="Try again", width="26", height="2", command=lambda: sign_up_missing_info_window.destroy())
         try_again_btn.pack(pady=20)
     # Check if email input is valid
     elif not re.match(validEmailPattern, email_text):
@@ -223,8 +202,7 @@ def register():
         Label(sign_up_invalid_email_window, text="Invalid email \U0001F92F",
               font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
         # Try again button
-        try_again_btn = Button(sign_up_invalid_email_window, text="Try again", width="26",
-                               height="2", command=lambda: sign_up_invalid_email_window.destroy())
+        try_again_btn = Button(sign_up_invalid_email_window, text="Try again", width="26", height="2", command=lambda: sign_up_invalid_email_window.destroy())
         try_again_btn.pack(pady=20)
     # If email has already registered, prompt an alert
     elif registered:
@@ -236,8 +214,7 @@ def register():
         Label(sign_up_fail_window, text="Email already exists \U0001F62C",
               font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
         # Try again button
-        try_again_btn = Button(sign_up_fail_window, text="Try again", width="26",
-                               height="2", command=lambda: sign_up_fail_window.destroy())
+        try_again_btn = Button(sign_up_fail_window, text="Try again", width="26", height="2", command=lambda: sign_up_fail_window.destroy())
         try_again_btn.pack(pady=20)
     # If not registered, write user info to the file
     else:
@@ -297,16 +274,13 @@ def logIn():
     Label(log_in_panel, text="", bg="#323232", fg="white").grid(row=1)
 
     # Password input
-    password_label = Label(
-        log_in_panel, text="Password: ", bg="#323232", fg="white")
+    password_label = Label(log_in_panel, text="Password: ", bg="#323232", fg="white")
     password_label.grid(row=2, column=0)
-    password_verify_entry = Entry(
-        log_in_panel, textvariable=password_verify, show="*")
+    password_verify_entry = Entry(log_in_panel, textvariable=password_verify, show="*")
     password_verify_entry.grid(row=2, column=1)
 
     # Log in button
-    login_btn = Button(log_in_window, text="Log in",
-                       width="26", height="2", command=loginVerify)
+    login_btn = Button(log_in_window, text="Log in", width="26", height="2", command=loginVerify)
     login_btn.pack(pady=20)
 
 
@@ -318,54 +292,49 @@ def loginVerify():
     email_text1 = email_verify.get()
     password_text1 = password_verify.get()
 
-    # Set login as False by default
-    # login = False
-
-    # if the password verification is successcual , recieve response result (true) from the backend and assign it to the login variable
-    login_response = logInReq()
-    login_json = login_response.json()
-    login = login_json['login_status']
-    login_user_name = login_json['user_name']
-    login_user_email = login_json['user_email']
-
-
     # If inputs are blank
-    if len(email_text1) == 0 or len(password_text1) == 0: 
+    if email_text1 == "" or password_text1 == "": 
         log_in_missing_info_window = Toplevel(log_in_window)
         log_in_missing_info_window.geometry('300x300')
         log_in_missing_info_window.title('Missing info')
-        log_in_missing_info_window.configure(
-            bg="#323232")  # Set background color
-        Label(log_in_missing_info_window, text="Something is missing \U0001F494",
-              font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+        log_in_missing_info_window.configure(bg="#323232")  # Set background color
+        Label(log_in_missing_info_window, text="Something is missing \U0001F494", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
         # Try again button
-        try_again_btn = Button(log_in_missing_info_window, text="Try again", width="26",
-                               height="2", command=lambda: log_in_missing_info_window.destroy())
+        try_again_btn = Button(log_in_missing_info_window, text="Try again", width="26", height="2", command=lambda: log_in_missing_info_window.destroy())
         try_again_btn.pack(pady=20)
-    # if login is set to ture
-    elif login:
-        # Clear out the entry box
-        email_verify_entry.delete(0, END)
-        password_verify_entry.delete(0, END)
-        log_in_window.destroy()
-        homepage(login_user_name, login_user_email)
-    # When the email and/or password are incorrect
-    # Prompt an error message
-    else:
-        log_in_fail_window = Toplevel(log_in_window)
-        log_in_fail_window.geometry('300x300')
-        log_in_fail_window.title('Oops')
-        log_in_fail_window.configure(bg="#323232")  # Set background color
-        Label(log_in_fail_window, text="Incorrect email or password \U0001F926",
-              font='Helvetica 20 bold', bg="#323232", fg="white").pack(fill=X, pady=40)
-        # Try again button
-        try_again_btn = Button(log_in_fail_window, text="Try again", width="26",
-                               height="2", command=lambda: log_in_fail_window.destroy())
-        try_again_btn.pack(pady=20)
+    else: 
+        # If password verification is successful , recieve response result (true) from the backend and assign it to the login variable
+        login_response = logInReq()
+        login_json = login_response.json()
+        login = login_json['login_status']
+        login_user_name = login_json['user_name']
+        login_user_email = login_json['user_email']
+
+        # If login is set to true
+        if login:
+            # Clear out the entry box
+            email_verify_entry.delete(0, END)
+            password_verify_entry.delete(0, END)
+            log_in_window.destroy()
+            homepage(login_user_name, login_user_email)
+        # When the password is incorrect
+        # Prompt an error message
+        else:
+            log_in_fail_window = Toplevel(log_in_window)
+            log_in_fail_window.geometry('300x300')
+            log_in_fail_window.title('Oops')
+            log_in_fail_window.configure(bg="#323232")  # Set background color
+            Label(log_in_fail_window, text="Password incorrect \U0001F926",
+                font='Helvetica 20 bold', bg="#323232", fg="white").pack(fill=X, pady=40)
+            # Try again button
+            try_again_btn = Button(log_in_fail_window, text="Try again", width="26",
+                                height="2", command=lambda: log_in_fail_window.destroy())
+            try_again_btn.pack(pady=20)
 
 
 # Create a homepage
 def homepage(login_user_name, user_email):
+    global homeAction, listViewAction, chartViewAction
     global login_user_email
     login_user_email = user_email
     cost = StringVar()
@@ -407,8 +376,6 @@ def homepage(login_user_name, user_email):
     # Set an initial value for the dropdown
     subscription_name_dropdown.set(' Select a subscription')
     subscription_name_dropdown.grid(row=0, column=1)
-    
-    # subscription_name_dropdown.bind("<<ComboboxSelected>>", get_selected_subscription)
     
     # Spacing between input fields
     Label(homepage_panel, text="", bg="#323232", fg="white").grid(row=1)
@@ -459,7 +426,7 @@ def homepage(login_user_name, user_email):
         selected_starting_date = starting_date_cal.get_date()
         selected_billing_cycle = billing_cycle_dropdown.get()
 
-        # If the inputs are empty, prompt an alert message
+        # If inputs are empty, prompt an alert message
         if selected_subscription_name == " Select a subscription" or cost_value == "" or selected_billing_cycle == " Select a billing cycle":
             submit_missing_window = Toplevel(homepage_window)
             submit_missing_window.geometry('300x300')
@@ -481,24 +448,115 @@ def homepage(login_user_name, user_email):
             try_again_btn = Button(submit_invalid_window, text="Try again", width="26", height="2", command=lambda: submit_invalid_window.destroy())
             try_again_btn.pack(pady=20)
         
-        # If the service name has already entered
-
-
-
-        ## post request
-        # get the response after post the submision data to the backend, read as json data, and get the success and msg variables
-        submission_response = postNewSubscription()
-        submission_json = submission_response.json()
-        # getting the repsonse of the submission action from the backend
-        submission_success = submission_json['success']
-        submission_msg = submission_json['msg']
-        ######TODO Implement the prompt window to ask if user want to add more subscription data or view the dashboard
-        
+        else: 
+            ## post request
+            # get the response after post the submission data to the backend, read as json data, and get the success and msg variables
+            submission_response = postNewSubscription()
+            submission_json = submission_response.json()
+            # getting the repsonse of the submission action from the backend
+            submission_success = submission_json['success']
+            submission_msg = submission_json['msg']
     
-    # Submit subscription and call the "get_create_subscription_date()" function
+            # If the service name has already existed
+            if (submission_success == False and submission_msg == 'Duplicated Service.'):
+                submit_invalid_window = Toplevel(homepage_window)
+                submit_invalid_window.geometry('300x300')
+                submit_invalid_window.title('Error')
+                submit_invalid_window.configure(bg="#323232")  # Set background color
+                Label(submit_invalid_window, text="Subscription already existed \U0001F92F", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+                # Try again button
+                try_again_btn = Button(submit_invalid_window, text="Try again", width="26", height="2", command=lambda: submit_invalid_window.destroy())
+                try_again_btn.pack(pady=20)
+
+            # If success
+            elif (submission_success == True and submission_msg == 'New subscription added.'):
+                # Clear out the entry box, reset dropdown and calendar picker
+                subscription_name_dropdown.set(' Select a subscription')
+                cost_entry.delete(0, END)
+                starting_date_cal.selection_set(today)
+                billing_cycle_dropdown.set(' Select a billing cycle')
+                # Pop up window
+                submit_success_window = Toplevel(homepage_window)
+                submit_success_window.geometry('300x300')
+                submit_success_window.title('Success')
+                submit_success_window.configure(bg="#323232")  # Set background color
+                Label(submit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+                # Confirm button to close the pop up message window
+                confirm_btn = Button(submit_success_window, text="Confirm", width="26",
+                                height="2", command=lambda: submit_success_window.destroy())
+                confirm_btn.pack(pady=20)
+
+
+    # Submit subscription and call the "submitValidationPost" function
     submit_subscription_btn = Button(homepage_window, text="Submit", width="26", height="2", command=submitValidationPost)
     submit_subscription_btn.pack(pady=20)
 
+    # Bottom nav bar
+    def homeAction():
+        homepage(login_user_name, user_email)
+    def listViewAction():
+        list_view()
+    def chartViewAction():
+        chart_view()
 
+    bottom_nav_frame = tk.Frame(homepage_window)
+    bottom_nav_frame.pack(side='bottom', fill='x')
+
+    home_button = tk.Button(bottom_nav_frame, text='Home')
+    home_button.pack(side='left', fill='both', expand=True)
+    list_view_button = tk.Button(bottom_nav_frame, text='List View', command=listViewAction)
+    list_view_button.pack(side='left', fill='both', expand=True)
+    chart_view_button = tk.Button(bottom_nav_frame, text='Chart View', command=chartViewAction)
+    chart_view_button.pack(side='left', fill='both', expand=True)
+
+
+# List View Screen
+def list_view():
+    # Set screen position, size, title
+    list_view_window = Toplevel(main_window)
+    list_view_window.geometry("390x844")
+    list_view_window.title('List View')
+    list_view_window.configure(bg="#323232")  # Set background color
+
+    # Heading
+    label4 = Label(list_view_window, text="List View \U0001F4CB", font='Helvetica 28 bold', fg='white')
+    label4.pack(fill=X, pady=40)
+    label4.configure(bg='#323232')
+
+    # Bottom nav bar
+    bottom_nav_frame = tk.Frame(list_view_window)
+    bottom_nav_frame.pack(side='bottom', fill='x')
+
+    home_button = tk.Button(bottom_nav_frame, text='Home', command=homeAction)
+    home_button.pack(side='left', fill='both', expand=True)
+    list_view_button = tk.Button(bottom_nav_frame, text='List View')
+    list_view_button.pack(side='left', fill='both', expand=True)
+    chart_view_button = tk.Button(bottom_nav_frame, text='Chart View', command=chartViewAction)
+    chart_view_button.pack(side='left', fill='both', expand=True)
+
+
+# Chart View Screen
+def chart_view():
+    # Set screen position, size, title
+    chart_view_window = Toplevel(main_window)
+    chart_view_window.geometry("390x844")
+    chart_view_window.title('Chart View')
+    chart_view_window.configure(bg="#323232")  # Set background color
+
+    # Heading
+    label4 = Label(chart_view_window, text="Chart View \U0001F4C8", font='Helvetica 28 bold', fg='white')
+    label4.pack(fill=X, pady=40)
+    label4.configure(bg='#323232')
+
+    # Bottom nav bar
+    bottom_nav_frame = tk.Frame(chart_view_window)
+    bottom_nav_frame.pack(side='bottom', fill='x')
+
+    home_button = tk.Button(bottom_nav_frame, text='Home', command=homeAction)
+    home_button.pack(side='left', fill='both', expand=True)
+    list_view_button = tk.Button(bottom_nav_frame, text='List View', command=listViewAction)
+    list_view_button.pack(side='left', fill='both', expand=True)
+    chart_view_button = tk.Button(bottom_nav_frame, text='Chart View')
+    chart_view_button.pack(side='left', fill='both', expand=True)
 
 mainMenu()
