@@ -71,7 +71,29 @@ def postNewSubscription():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
-################################################# HTTP requests end here
+def getAllSubscriptions():
+    url = 'http://localhost:8000/listview'
+    user = {'email': user_email}  
+    try:
+        response = requests.post(url, json = user)
+        response.raise_for_status() 
+        print(response.status_code)
+        return response
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
+def cancelASubscription():
+    url = 'http://localhost:8000/cancel'
+    subscription = {'sub': user_email}  
+    try:
+        response = requests.post(url, json = subscription)
+        response.raise_for_status() 
+        print(response.status_code)
+        return response
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
+ ################################################# HTTP requests end here
 
 
 
@@ -497,6 +519,7 @@ def homepage(login_user_name, user_email):
     def listViewAction():
         list_view()
     def chartViewAction():
+        
         chart_view()
 
     bottom_nav_frame = tk.Frame(homepage_window)
@@ -512,7 +535,17 @@ def homepage(login_user_name, user_email):
 
 # List View Screen
 def list_view():
+    global user_email
     # Set screen position, size, title
+    user_email = login_user_email
+    # get a list of all subscription data under the current user 
+    subscriptions = getAllSubscriptions()
+    subscription_json =subscriptions.json()
+    print("I want to print out the response")
+    dic = (subscription_json['all_subscriptions'])
+    for row in dic:
+        print(row)
+    
     list_view_window = Toplevel(main_window)
     list_view_window.geometry("390x844")
     list_view_window.title('List View')

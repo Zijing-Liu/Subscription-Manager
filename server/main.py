@@ -204,23 +204,63 @@ class Homepage(Resource):
                 return response3
 
 # define a Dashboard resource to '/dashboard' endpoint
-class Dashboard(Resource):
-    # get method to get all the subscription data from the database and send the response to the GUI for display
-    def get(self):
-        return 
-    # post a deletion request to delete the subscription data in the database
+
+
+class ListView(Resource):
+    # post method to get all the subscription data from the database and send the response to the GUI for display
     def post(self):
-        return
+        # parse the post request data as json
+        print("start posting")
+        user = request.get_json()
+        print(user)
+        # get each value of the json data and write into new variables
+        email = user.get('email')
+        print("this is the user email: " + email)
 
-
-
-
+        try:
+            # use the email to get the user id from the User table
+            conn = get_db_connection()
+            print("connected to database")
+            user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
+            # convert the row object to tuple
+            user_id = tuple(user_id_row)[0]
+            print(type(user_id))
+            # if the user is not found in the database (not loged in), return false and the error message
+            if user_id == None:
+                return {
+                    'success': False,
+                    'msg': "Email not found"
+                }
+            print(user_id)
+            # connect to the database and fetch the subscription data under the current user name
+            subscriptions = conn.execute('SELECT CO.name, SUB.amount, SUB.start_date, SUB.subscription_cycle FROM SUBSCRIPTION AS SUB, COMPANY AS CO WHERE user_id = ?', (user_id,)).fetchall()
+            # initialize a list to store all the return
+            print('here')
+            print(type(subscriptions))
+            subscriptions_list = []
+            for row in subscriptions:
+                subscriptions_list.append(row)
+            subscriptions_list = [tuple(row) for row in subscriptions_list]
+            response = {
+                'all_subscriptions': subscriptions_list,
+            }
+            conn.commit()
+            conn.close()
+            return response
+            
+        except Exception as e:
+            print("An error occurred:", str(e))
+            response3 = {
+                'success': False,
+                'msg': str(e)
+            }
 
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
 api.add_resource(UserLogIn, '/login')
 api.add_resource(Homepage, '/homepage')
-api.add_resource(Dashboard, '/dashboard')
+api.add_resource(ListView, '/listview')
+
 # start the server and the flask application
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
