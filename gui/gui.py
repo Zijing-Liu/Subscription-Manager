@@ -96,10 +96,10 @@ def getAllSubscriptions():
         print('Error:', e)
 
 
-def cancelASubscription():
-    url = 'http://localhost:8000/cancel'
+def removeASubscription(sub_name):
+    url = 'http://localhost:8000/remove'
     subscription = {'email': login_user_email,
-                    'cancel_subscription_name': 'cancel_subscription_name'}  
+                    'remove_subscription_name': sub_name}  
     try:
         response = requests.post(url, json = subscription)
         response.raise_for_status() 
@@ -108,16 +108,16 @@ def cancelASubscription():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
-def editASubscription():
+def editASubscription(sub_name, start_date, amout, cycle):
     url = 'http://localhost:8000/edit'
-    subscription = {'email': login_user_email,
-                    'edit_subscription_name': 'edit_subscription_name',
-                    'edit_start_date': 'edit_start_date',
-                    'amount': 'edit_amount',
-                    'subscription_cycle': 'edit_billing_cycle'
+    edit_subscription = {'email': login_user_email,
+                    'edit_subscription_name': sub_name,
+                    'edit_start_date': start_date,
+                    'amount': amout,
+                    'subscription_cycle': cycle
                     }  
     try:
-        response = requests.post(url, json = subscription)
+        response = requests.post(url, json = edit_subscription)
         response.raise_for_status() 
         print(response.status_code)
         return response
@@ -722,23 +722,38 @@ def remove_sub():
             try_again_btn = Button(remove_missing_window, text="Try again", width="26", height="2", command=lambda: remove_missing_window.destroy())
             try_again_btn.pack(pady=20)
         else:
-            #################################################################
-            ## NEED TO PASS DATA TO BACKEND
-            #################################################################
-            print(selected_subscription_name)
-
-            # Clear out the entry box, reset dropdown and calendar picker
-            subscription_name_dropdown.set(' Select a subscription')
-            # Pop up window
-            submit_success_window = Toplevel(remove_sub_window)
-            submit_success_window.geometry('300x300')
-            submit_success_window.title('Success')
-            submit_success_window.configure(bg="#323232")  # Set background color
-            Label(submit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
-            # Confirm button to close the pop up message window
-            confirm_btn = Button(submit_success_window, text="Confirm", width="26",
-                            height="2", command=lambda: [submit_success_window.destroy(), remove_sub_window.destroy()])
-            confirm_btn.pack(pady=20)
+            # send a post request to the back end to remove user selected subscription 
+            response = removeASubscription(selected_subscription_name)
+            success = response.json()['success']
+            if(success):
+                # Clear out the entry box, reset dropdown and calendar picker
+                subscription_name_dropdown.set(' Select a subscription')
+                # Pop up window
+                submit_success_window = Toplevel(remove_sub_window)
+                submit_success_window.geometry('300x300')
+                submit_success_window.title('Success')
+                submit_success_window.configure(bg="#323232")  # Set background color
+                Label(submit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+                # Confirm button to close the pop up message window
+                confirm_btn = Button(submit_success_window, text="Confirm", width="26",
+                                height="2", command=lambda: [submit_success_window.destroy(), remove_sub_window.destroy()])
+                confirm_btn.pack(pady=20)
+            else:
+                ###################################################### 
+                #           Please redesign this pop-up window        #
+                ###################################################### 
+                # Clear out the entry box, reset dropdown and calendar picker
+                subscription_name_dropdown.set(' Select a subscription')
+                # Pop up window
+                submit_success_window = Toplevel(remove_sub_window)
+                submit_success_window.geometry('300x300')
+                submit_success_window.title('Fail')
+                submit_success_window.configure(bg="#323232")  # Set background color
+                Label(submit_success_window, text="System outrage \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+                # Confirm button to close the pop up message window
+                confirm_btn = Button(submit_success_window, text="Confirm", width="26",
+                                height="2", command=lambda: [submit_success_window.destroy(), remove_sub_window.destroy()])
+                confirm_btn.pack(pady=20)
 
 
     # Remove subscription button
@@ -854,10 +869,9 @@ def edit_sub():
 
         # If success
         else:
-            #################################################################
-            ## NEED TO PASS DATA TO BACKEND
-            #################################################################
-
+            response = editASubscription(selected_subscription_name, selected_starting_date, cost_value, selected_billing_cycle)
+            response_success = response.json()['success']
+            if(response_success):
             # Clear out the entry box, reset dropdown and calendar picker
                 subscription_name_dropdown.set(' Select a subscription')
                 cost_entry.delete(0, END)
@@ -867,6 +881,25 @@ def edit_sub():
                 edit_success_window = Toplevel(edit_sub_window)
                 edit_success_window.geometry('300x300')
                 edit_success_window.title('Success')
+                edit_success_window.configure(bg="#323232")  # Set background color
+                Label(edit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+                # Confirm button to close the pop up message window
+                confirm_btn = Button(edit_success_window, text="Confirm", width="26",
+                                height="2", command=lambda: [edit_success_window.destroy(), edit_sub_window.destroy()])
+                confirm_btn.pack(pady=20)
+            else:
+                ###################################################### 
+                #           Please redesign this pop-up window        #
+                ###################################################### 
+                #Clear out the entry box, reset dropdown and calendar picker
+                subscription_name_dropdown.set('Select a subscription')
+                cost_entry.delete(0, END)
+                starting_date_cal.selection_set(today)
+                billing_cycle_dropdown.set(' Select a billing cycle')
+                # Pop up window
+                edit_success_window = Toplevel(edit_sub_window)
+                edit_success_window.geometry('300x300')
+                edit_success_window.title('System Error')
                 edit_success_window.configure(bg="#323232")  # Set background color
                 Label(edit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
                 # Confirm button to close the pop up message window

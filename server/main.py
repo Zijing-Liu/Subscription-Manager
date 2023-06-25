@@ -214,17 +214,13 @@ class ListView(Resource):
     # post method to get all the subscription data from the database and send the response to the GUI for display
     def post(self):
         # parse the post request data as json
-        print("start posting")
         user = request.get_json()
         print(user)
         # get each value of the json data and write into new variables
         email = user.get('email')
-        print("this is the user email: " + email)
-
         try:
             # use the email to get the user id from the User table
             conn = get_db_connection()
-            print("connected to database")
             user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
             # convert the row object to tuple
             user_id = tuple(user_id_row)[0]
@@ -309,15 +305,17 @@ class ChartView(Resource):
             }
             return response2
 
-class Cancel(Resource):
-    def post(seld):
+class Remove(Resource):
+    def post(self):
         # parse the post request data as json
-        cancel = request.get_json()
-        print(cancel)
+        remove = request.get_json()
+        print(remove)
         # get each value of the json data and write into new variables
-        email = cancel.get('email')
-        subscription_name = cancel.get('cancel_subscription_name')
-
+        email = remove.get('email')
+        subscription_name = remove.get('remove_subscription_name')
+        print("remove")
+        print(email)
+        print(subscription_name)
         try:
             # use the email to get the user id from the User table
             conn = get_db_connection()
@@ -328,61 +326,68 @@ class Cancel(Resource):
             user_id = tuple(user_id_row)[0]
             co_id = tuple(co_id_row)[0]
             
-            
-            exist = conn.execute('SELECT * FROM Subscription WHERE user_id = ? and co_id = ?', (user_id, co_id, )).fetchone()
-            if exist == None:
-                respone1 = {
-                'success': False,
-                'msg': "Cannot find this subscription"   
-                }
-                return respone1 
-            # if posted subscrition is valid, update the end_date value of this subscripotion tuple with the current date.
-            end_date = date.today().strftime('%-m/%d%y')
+            # update the end_date value of this subscripotion tuple with the current date.
+            end_date = date.today().strftime('%-m/%-d/%y')
             print(end_date)
             conn.execute('''
                 UPDATE Subscription
-                SET end_date = ？
+                SET end_date = ?
                 WHERE user_id = ? AND co_id = ?
             ''', (end_date, user_id, co_id))     
+            conn.commit()
+            conn.close()
 
-            response2 = {
+            response1 = {
                 'success': True,
                 'msg': "Cancel Success"
             }
-            return response2
+            return response1
         
 
         except Exception as e:
             print("An error occurred:", str(e))
-            response3 = {
+            response2 = {
                 'success': False,
                 'msg': str(e)
             }
-            return response3
+            return response2
 
 class Edit(Resource):
     def post(self):
         edit = request.get_json()
         email = edit.get('email')
         subscription_name = edit.get('edit_subscription_name')
-        start_date = edit.get('start_date')
+        start_date = edit.get('edit_start_date')
         amount = edit.get('amount')
         subscription_cycle = edit.get('subscription_cycle')
+        print(start_date)
+        print(amount)
+        print(subscription_cycle)
     
         try:
-                # use the email to get the user id from the User table
-                conn = get_db_connection()
-                print("connected to database")
-                user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
-                co_id_row = conn.execute('SELECT co_id FROM COMPANY WHERE name = ?', (subscription_name,)).fetchone()
-                # convert the row object to tuple
-                user_id = tuple(user_id_row)[0]
-                co_id = tuple(co_id_row)[0]
-                conn.execute('''
-                        UPDATE Subscription
-                        SET start_date = ?, amount = ?, subscription_cycle = ?
-                        WHERE user_id = ? AND co_id = ?
-                    ''', (start_date, amount, subscription_cycle, user_id, co_id))  
+            # use the email to get the user id from the User table
+            conn = get_db_connection()
+            print("connected to database")
+            user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
+            co_id_row = conn.execute('SELECT co_id FROM COMPANY WHERE name = ?', (subscription_name,)).fetchone()
+            # convert the row object to tuple
+            user_id = tuple(user_id_row)[0]
+            co_id = tuple(co_id_row)[0]
+            print(user_id)
+            conn.execute('''
+                    UPDATE Subscription
+                    SET start_date = ?, amount = ?, subscription_cycle = ?
+                    WHERE user_id = ? AND co_id = ?
+                ''', (start_date, amount, subscription_cycle, user_id, co_id))  
+            
+            response = {
+                'success': True,
+                'msg': "Edit success"
+            }
+            conn.commit()
+            conn.close()
+
+            return response
 
         except Exception as e:
             print("An error occurred:", str(e))
@@ -391,9 +396,6 @@ class Edit(Resource):
                 'msg': str(e)
             }
             return response3    
-                
-            
-        return
     
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
@@ -401,7 +403,7 @@ api.add_resource(UserLogIn, '/login')
 api.add_resource(Homepage, '/homepage')
 api.add_resource(ListView, '/listview')
 api.add_resource(ChartView, '/chartview')
-api.add_resource(Cancel, '/cancel')
+api.add_resource(Remove, '/remove')
 api.add_resource(Edit, '/edit')
 # start the server and the flask application
 if __name__ == "__main__":
