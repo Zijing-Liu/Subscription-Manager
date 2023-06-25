@@ -4,6 +4,7 @@ import tkinter as tk
 from flask_restful import Api, Resource
 # from flask_sqlalchemy import SQLAlchemy
 import sqlite3, bcrypt, json
+from datetime import date
 
 # initialize this flask application, api
 app = Flask(__name__)
@@ -181,6 +182,7 @@ class Homepage(Resource):
             print("Starting to write to the database")
             # write the new subscription data into the database, if success, return json data passing true
             try:
+                
                 conn.execute('''INSERT OR REPLACE INTO Subscription
                     (user_id, co_id, start_date, amount, subscription_cycle) VALUES (?, ?, ?, ?, ?)''',
                                 (user_id, co_id, date, amount, subscription_cycle))
@@ -231,16 +233,15 @@ class ListView(Resource):
                     'success': False,
                     'msg': "Email not found"
                 }
-            print(user_id)
-            # connect to the database and fetch the subscription data under the current user name
-            subscriptions = conn.execute('SELECT CO.name, SUB.amount, SUB.start_date, SUB.subscription_cycle FROM SUBSCRIPTION AS SUB, COMPANY AS CO WHERE user_id = ?', (user_id,)).fetchall()
-            # initialize a list to store all the return
-            print('here')
-            print(type(subscriptions))
+
+            # Fetch the subscription data under the current user name
+            subscriptions = conn.execute('SELECT CO.name, SUB.amount, SUB.start_date, SUB.subscription_cycle FROM SUBSCRIPTION AS SUB JOIN COMPANY AS CO ON CO.co_id = SUB.co_id WHERE SUB.end_date IS NULL AND SUB.user_id = ?', (user_id,)).fetchall()
+            # Use list to store all the subscription tuple data
             subscriptions_list = []
             for row in subscriptions:
                 subscriptions_list.append(row)
             subscriptions_list = [tuple(row) for row in subscriptions_list]
+            # return response as JSON data
             response = {
                 'all_subscriptions': subscriptions_list,
             }
@@ -250,17 +251,70 @@ class ListView(Resource):
             
         except Exception as e:
             print("An error occurred:", str(e))
+            response2 = {
+                'success': False,
+                'msg': str(e)
+            }
+            return response2
+
+
+class Cancel(Resource):
+    def post(seld):
+        # parse the post request data as json
+        cancel = request.get_json()
+        print(cancel)
+        # get each value of the json data and write into new variables
+        email = cancel.get('email')
+        subscription_name = cancel.get('cancel_subscription_name')
+
+        try:
+            # use the email to get the user id from the User table
+            conn = get_db_connection()
+            print("connected to database")
+            user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
+            co_id_row = conn.execute('SELECT co_id FROM COMPANY WHERE name = ?', (subscription_name,)).fetchone()
+            # convert the row object to tuple
+            user_id = tuple(user_id_row)[0]
+            co_id = tuple(co_id_row)[0]
+            
+            
+            exist = conn.execute('SELECT * FROM Subscription WHERE user_id = ? and co_id = ?', (user_id, co_id, )).fetchone()
+            if exist == None:
+                respone1 = {
+                'success': False,
+                'msg': "Cannot find this subscription"   
+                }
+                return respone1 
+            # if posted subscrition is valid, update the end_date value of this subscripotion tuple with the current date.
+            end_date = date.today()
+            print(end_date)
+            conn.execute('''
+                UPDATE Subscription
+                SET end_date = ？
+                WHERE user_id = ? AND co_id = ?
+            ''', (end_date, user_id, co_id))     
+
+            response2 = {
+                'success': True,
+                'msg': "Cancel Success"
+            }
+            return response2
+        
+
+        except Exception as e:
+            print("An error occurred:", str(e))
             response3 = {
                 'success': False,
                 'msg': str(e)
             }
+            return response3
 
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
 api.add_resource(UserLogIn, '/login')
 api.add_resource(Homepage, '/homepage')
 api.add_resource(ListView, '/listview')
-
+api.add_resource(Cancel, '/cancel')
 # start the server and the flask application
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

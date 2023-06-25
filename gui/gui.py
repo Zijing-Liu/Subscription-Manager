@@ -84,7 +84,8 @@ def getAllSubscriptions():
 
 def cancelASubscription():
     url = 'http://localhost:8000/cancel'
-    subscription = {'sub': user_email}  
+    subscription = {'email': user_email,
+                    'cancel_subscription_name': 'cancel_subscription_name'}  
     try:
         response = requests.post(url, json = subscription)
         response.raise_for_status() 
