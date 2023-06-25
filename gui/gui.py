@@ -4,7 +4,8 @@ from tkinter.ttk import Combobox
 from tkcalendar import Calendar
 from tkinter import ttk
 import tkinter as tk
-import datetime
+import datetime as dt
+from datetime import datetime, timedelta
 import re
 import json
 import requests
@@ -416,7 +417,7 @@ def homepage(login_user_name, user_email):
     starting_date_label = Label(homepage_panel, text="Starting date: ", bg="#323232", fg="white")
     starting_date_label.grid(row=4, column=0)
     # Get today's date
-    today = datetime.date.today()
+    today = dt.date.today()
     # Create a calendar
     starting_date_cal = Calendar(homepage_panel, selectmode='day', year=today.year, month=today.month, day=today.day, width=10, height=30, background='white', foreground='black', selectforeground='red')
     starting_date_cal.grid(row=4, column=1)
@@ -544,15 +545,6 @@ def table_view():
     table_view_window.title('Table View')
     table_view_window.configure(bg="#323232")  # Set background color
 
-    user_email = login_user_email
-    # get a list of all subscription data under the current user 
-    subscriptions = getAllSubscriptions()
-    subscription_json =subscriptions.json()
-    print("I want to print out the response")
-    dic = (subscription_json['all_subscriptions'])
-    for row in dic:
-        print(row)
-
     # Heading
     label4 = Label(table_view_window, text="Table View \U0001F4CB", font='Helvetica 28 bold', fg='white')
     label4.pack(fill=X, pady=40)
@@ -572,10 +564,45 @@ def table_view():
     table.heading("Billing cycle", text="Billing cycle")
     table.heading("Next charge on", text="Next charge on")
 
-    # Insert sample data into the table
-    table.insert("", "end", values=("Netflix", "12.99", "01/15/2022", "monthly", "02/15/2022"))
-    table.insert("", "end", values=("Amazon Prime", "9.99", "03/08/2022", "annually", "03/08/2023"))
-    table.insert("", "end", values=("Spotify", "9.99", "02/20/2022", "monthly", "03/02/2022"))
+    # Get a list of all subscription data under the current user 
+    user_email = login_user_email
+    subscriptions = getAllSubscriptions()
+    subscription_json =subscriptions.json()
+    # print("I want to print out the response")
+    dic = (subscription_json['all_subscriptions'])
+    for row in dic:
+        # Extract starting date and billing cycle
+        row_start_date = row[2]
+        row_billing_cycle = row[3]
+        # Convert the start date string into a "datetime" object
+        row_start_datetime = datetime.strptime(row_start_date, "%m/%d/%y")
+        # Determine how many days are there in one billing cycle
+        if row_billing_cycle == 'weekly':
+            billing_days = 7
+        elif row_billing_cycle == 'monthly':
+            billing_days = 30
+        elif row_billing_cycle == '3-months':
+            billing_days = 90
+        elif row_billing_cycle == '6-months':
+            billing_days = 180
+        elif row_billing_cycle == 'annually':
+            billing_days = 365
+        # Convert the billing_days into a timedelta object for later calculation
+        billing_days_duration = timedelta(days = billing_days)
+        # Get the current date
+        today_date = datetime.now().date()
+        # Calculate the number of completed cycles
+        # Use // to return the largest integer that is less than or equal to the result
+        completed_cycles = (today_date - row_start_datetime.date()).days // (billing_days_duration).days
+        # Calculate the next billing date
+        # (Completed cycle + 1) => determine the next billing cycle after the completed cycle
+        # (Completed cycle + 1) * (days in one billing cycle) => # of days after the next billing cycle
+        # Start date + (Completed cycle + 1) * (days in one billing cycle) => adds up the days to calculate the next billing date from the starting date
+        next_billing_date = row_start_datetime + timedelta(days = (completed_cycles + 1) * billing_days_duration.days)
+        next_billing_date = next_billing_date.strftime('%-m/%d/%y')
+
+        # Insert into table
+        table.insert("", "end", values=(row[0], row[1], row[2], row[3], next_billing_date))
 
     # Configure column properties
     table.column("#0", width=0, stretch=tk.NO)  # Hide the first indexing column (default)
