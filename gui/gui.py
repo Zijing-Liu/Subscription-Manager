@@ -10,7 +10,9 @@ import re
 import json
 import requests
 # Access local
-import os
+from dateutil.relativedelta import relativedelta
+import matplotlib.pyplot as plt
+import linechart
 
 
 
@@ -552,6 +554,7 @@ def homepage(login_user_name, user_email):
 def table_view():
     global table_view_window
     global user_email
+    global subscription_dic
     # Set screen position, size, title
     table_view_window = Toplevel(main_window)
     table_view_window.geometry("390x844")
@@ -581,10 +584,10 @@ def table_view():
     user_email = login_user_email
     subscriptions = getAllSubscriptions()
     subscription_json =subscriptions.json()
-    # print("I want to print out the response")
-    dic = (subscription_json['all_subscriptions'])
-
-    for row in dic:
+    # get the dictionay of the subscription
+    subscription_dic = (subscription_json['all_subscriptions'])
+    
+    for row in subscription_dic:
         # Extract starting date and billing cycle
         row_start_date = row[2]
         row_billing_cycle = row[3]
@@ -675,6 +678,9 @@ def chart_view():
     label4.pack(fill=X, pady=40)
     label4.configure(bg='#323232')
 
+    # create the line chart to visualize the current user's spending 
+    linechart.createLineChart(subscription_dic)
+
     # Bottom nav bar
     bottom_nav_frame = tk.Frame(chart_view_window)
     bottom_nav_frame.pack(side='bottom', fill='x')
@@ -691,3 +697,4 @@ def chart_view():
 
 
 mainMenu()
+
