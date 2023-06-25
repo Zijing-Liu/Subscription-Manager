@@ -95,11 +95,23 @@ def cancelASubscription():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
+def editASubscription():
+    url = 'http://localhost:8000/edit'
+    subscription = {'email': user_email,
+                    'edit_subscription_name': 'edit_subscription_name',
+                    'edit_start_date': 'edit_start_date',
+                    'amount': 'edit_amount',
+                    'subscription_cycle': 'edit_billing_cycle'
+                    }  
+    try:
+        response = requests.post(url, json = subscription)
+        response.raise_for_status() 
+        print(response.status_code)
+        return response
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
  ################################################# HTTP requests end here
-
-
-
-
 
 # Create a landing screen named main_menu
 def mainMenu():
@@ -571,6 +583,7 @@ def table_view():
     subscription_json =subscriptions.json()
     # print("I want to print out the response")
     dic = (subscription_json['all_subscriptions'])
+
     for row in dic:
         # Extract starting date and billing cycle
         row_start_date = row[2]
