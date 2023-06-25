@@ -2,13 +2,7 @@
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
-import requests, sqlite3
 
-# connection = sqlite3.connect('data.db')
-# cursor = connection.cursor()
-# Get the start date, cycle, end_date, and amount from the database
-# cursor.execute('SELECT start_date, subscription_cycle, end_date, amount FROM Subscription WHERE user_id = 58')
-# subscription_data = cursor.fetchall()  # This is a list of tuples
 def createLineChart(subscription_data):
     # prepare a dictionary to use key to calculalate the amount of payment by month/year
     pay_payday = {} 
@@ -67,10 +61,12 @@ def createLineChart(subscription_data):
         month_x=month_x+relativedelta(months=1)
 
     #set the x, y
-
-    x=months_x
-    y = [pay_payday.get(month_year, 0) for month_year in x]#if a month has no pay show 0
-
+    plot_data = {
+        'x': months_x,
+        'y': [pay_payday.get(month_year, 0) for month_year in months_x] 
+    }
+    return plot_data
+ 
     plt.plot(x, y, marker='s')
     plt.xlabel('Month-Year')
     plt.ylabel('Total Spending')
@@ -83,7 +79,7 @@ def createLineChart(subscription_data):
         plt.annotate(str(j), xy=(i, j), xytext=(0, -15),
                     textcoords='offset points', ha='center')
 
-    plt.show()
+    # plt.show()
 
             
             
