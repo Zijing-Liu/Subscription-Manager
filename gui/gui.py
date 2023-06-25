@@ -71,7 +71,29 @@ def postNewSubscription():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
-################################################# HTTP requests end here
+def getAllSubscriptions():
+    url = 'http://localhost:8000/listview'
+    user = {'email': user_email}  
+    try:
+        response = requests.post(url, json = user)
+        response.raise_for_status() 
+        print(response.status_code)
+        return response
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
+def cancelASubscription():
+    url = 'http://localhost:8000/cancel'
+    subscription = {'sub': user_email}  
+    try:
+        response = requests.post(url, json = subscription)
+        response.raise_for_status() 
+        print(response.status_code)
+        return response
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
+ ################################################# HTTP requests end here
 
 
 
@@ -498,6 +520,7 @@ def homepage(login_user_name, user_email):
     def tableViewAction():
         table_view()
     def chartViewAction():
+        
         chart_view()
     # Frame
     bottom_nav_frame = tk.Frame(homepage_window)
@@ -511,14 +534,24 @@ def homepage(login_user_name, user_email):
     chart_view_button.pack(side='left', fill='both', expand=True)
 
 
-# List View Screen
+# Table View Screen
 def table_view():
     global table_view_window
+    global user_email
     # Set screen position, size, title
     table_view_window = Toplevel(main_window)
     table_view_window.geometry("390x844")
     table_view_window.title('Table View')
     table_view_window.configure(bg="#323232")  # Set background color
+
+    user_email = login_user_email
+    # get a list of all subscription data under the current user 
+    subscriptions = getAllSubscriptions()
+    subscription_json =subscriptions.json()
+    print("I want to print out the response")
+    dic = (subscription_json['all_subscriptions'])
+    for row in dic:
+        print(row)
 
     # Heading
     label4 = Label(table_view_window, text="Table View \U0001F4CB", font='Helvetica 28 bold', fg='white')
