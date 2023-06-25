@@ -74,7 +74,7 @@ def createLineChart(subscription_data):
     plt.plot(x, y, marker='s')
     plt.xlabel('Month-Year')
     plt.ylabel('Total Spending')
-    plt.title('Subscription Payments within Last One Year (Cash-based Accounting)')
+    plt.title('Subscription Spending in the Past 12 Months')
     plt.xticks(rotation=90)
 
 

@@ -12,6 +12,8 @@ import requests
 from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
 import linechart
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 
 
@@ -374,8 +376,10 @@ def loginVerify():
             log_in_fail_window.geometry('300x300')
             log_in_fail_window.title('Oops')
             log_in_fail_window.configure(bg="#323232")  # Set background color
-            Label(log_in_fail_window, text="Password incorrect \U0001F926",
-                font='Helvetica 20 bold', bg="#323232", fg="white").pack(fill=X, pady=40)
+            Label(log_in_fail_window, text="Password incorrect! \U0001F926",
+                font='Helvetica 20 bold', bg="#323232", fg="white").pack(fill=X, pady=(40,0))
+            Label(log_in_fail_window, text="Please check your spelling",
+                font='Helvetica 14', bg="#323232", fg="white").pack(fill=X, pady=20)
             # Try again button
             try_again_btn = Button(log_in_fail_window, text="Try again", width="26",
                                 height="2", command=lambda: log_in_fail_window.destroy())
