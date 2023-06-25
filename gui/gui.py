@@ -4,7 +4,8 @@ from tkinter.ttk import Combobox
 from tkcalendar import Calendar
 from tkinter import ttk
 import tkinter as tk
-import datetime
+import datetime as dt
+from datetime import datetime, timedelta
 import re
 import json
 import requests
@@ -357,7 +358,7 @@ def loginVerify():
 
 # Create a homepage
 def homepage(login_user_name, user_email):
-    global homeAction, listViewAction, chartViewAction
+    global homeAction, tableViewAction, chartViewAction
     global login_user_email
     login_user_email = user_email
     cost = StringVar()
@@ -417,7 +418,7 @@ def homepage(login_user_name, user_email):
     starting_date_label = Label(homepage_panel, text="Starting date: ", bg="#323232", fg="white")
     starting_date_label.grid(row=4, column=0)
     # Get today's date
-    today = datetime.date.today()
+    today = dt.date.today()
     # Create a calendar
     starting_date_cal = Calendar(homepage_panel, selectmode='day', year=today.year, month=today.month, day=today.day, width=10, height=30, background='white', foreground='black', selectforeground='red')
     starting_date_cal.grid(row=4, column=1)
@@ -515,58 +516,137 @@ def homepage(login_user_name, user_email):
     submit_subscription_btn.pack(pady=20)
 
     # Bottom nav bar
+    # Action
     def homeAction():
         homepage(login_user_name, user_email)
-    def listViewAction():
-        list_view()
+    def tableViewAction():
+        table_view()
     def chartViewAction():
         
         chart_view()
-
+    # Frame
     bottom_nav_frame = tk.Frame(homepage_window)
     bottom_nav_frame.pack(side='bottom', fill='x')
-
+    # Nav tabs
     home_button = tk.Button(bottom_nav_frame, text='Home')
     home_button.pack(side='left', fill='both', expand=True)
-    list_view_button = tk.Button(bottom_nav_frame, text='List View', command=listViewAction)
+    list_view_button = tk.Button(bottom_nav_frame, text='Table View', command=tableViewAction)
     list_view_button.pack(side='left', fill='both', expand=True)
     chart_view_button = tk.Button(bottom_nav_frame, text='Chart View', command=chartViewAction)
     chart_view_button.pack(side='left', fill='both', expand=True)
 
 
-# List View Screen
-def list_view():
+# Table View Screen
+def table_view():
+    global table_view_window
     global user_email
     # Set screen position, size, title
-    user_email = login_user_email
-    # get a list of all subscription data under the current user 
-    subscriptions = getAllSubscriptions()
-    subscription_json =subscriptions.json()
-    print("I want to print out the response")
-    dic = (subscription_json['all_subscriptions'])
-    for row in dic:
-        print(row)
-    
-    list_view_window = Toplevel(main_window)
-    list_view_window.geometry("390x844")
-    list_view_window.title('List View')
-    list_view_window.configure(bg="#323232")  # Set background color
+    table_view_window = Toplevel(main_window)
+    table_view_window.geometry("390x844")
+    table_view_window.title('Table View')
+    table_view_window.configure(bg="#323232")  # Set background color
 
     # Heading
-    label4 = Label(list_view_window, text="List View \U0001F4CB", font='Helvetica 28 bold', fg='white')
+    label4 = Label(table_view_window, text="Table View \U0001F4CB", font='Helvetica 28 bold', fg='white')
     label4.pack(fill=X, pady=40)
     label4.configure(bg='#323232')
 
-    # Bottom nav bar
-    bottom_nav_frame = tk.Frame(list_view_window)
-    bottom_nav_frame.pack(side='bottom', fill='x')
+    # Make a frame for treeview
+    table_view_panel = Frame(table_view_window)
+    table_view_panel.configure(bg='#323232')
+    table_view_panel.pack()
 
+    # Create a treeview table
+    table = ttk.Treeview(table_view_panel, columns=("Subscription", "Cost", "Starting date", "Billing cycle", "Next charge on"))
+    # Name column headings
+    table.heading("Subscription", text="Subscription")
+    table.heading("Cost", text="Cost ($)")
+    table.heading("Starting date", text="Starting date")
+    table.heading("Billing cycle", text="Billing cycle")
+    table.heading("Next charge on", text="Next charge on")
+
+    # Get a list of all subscription data under the current user 
+    user_email = login_user_email
+    subscriptions = getAllSubscriptions()
+    subscription_json =subscriptions.json()
+    # print("I want to print out the response")
+    dic = (subscription_json['all_subscriptions'])
+    for row in dic:
+        # Extract starting date and billing cycle
+        row_start_date = row[2]
+        row_billing_cycle = row[3]
+        # Convert the start date string into a "datetime" object
+        row_start_datetime = datetime.strptime(row_start_date, "%m/%d/%y")
+        # Determine how many days are there in one billing cycle
+        if row_billing_cycle == 'weekly':
+            billing_days = 7
+        elif row_billing_cycle == 'monthly':
+            billing_days = 30
+        elif row_billing_cycle == '3-months':
+            billing_days = 90
+        elif row_billing_cycle == '6-months':
+            billing_days = 180
+        elif row_billing_cycle == 'annually':
+            billing_days = 365
+        # Convert the billing_days into a timedelta object for later calculation
+        billing_days_duration = timedelta(days = billing_days)
+        # Get the current date
+        today_date = datetime.now().date()
+        # Calculate the number of completed cycles
+        # Use // to return the largest integer that is less than or equal to the result
+        completed_cycles = (today_date - row_start_datetime.date()).days // (billing_days_duration).days
+        # Calculate the next billing date
+        # (Completed cycle + 1) => determine the next billing cycle after the completed cycle
+        # (Completed cycle + 1) * (days in one billing cycle) => # of days after the next billing cycle
+        # Start date + (Completed cycle + 1) * (days in one billing cycle) => adds up the days to calculate the next billing date from the starting date
+        next_billing_date = row_start_datetime + timedelta(days = (completed_cycles + 1) * billing_days_duration.days)
+        next_billing_date = next_billing_date.strftime('%-m/%d/%y')
+
+        # Insert into table
+        table.insert("", "end", values=(row[0], row[1], row[2], row[3], next_billing_date))
+
+    # Configure column properties
+    table.column("#0", width=0, stretch=tk.NO)  # Hide the first indexing column (default)
+    table.column("Subscription", width=80, anchor=tk.CENTER)
+    table.column("Cost", width=60, anchor=tk.CENTER)
+    table.column("Starting date", width=80, anchor=tk.CENTER)
+    table.column("Billing cycle", width=80, anchor=tk.CENTER)
+    table.column("Next charge on", width=100, anchor=tk.CENTER)
+    # Font
+    style = ttk.Style()
+    style.configure("Treeview", font=('Helvetica', 9))
+    # Pack the treeview widget
+    table.pack(fill="both", expand=True)
+
+    # Remove subscription button
+    remove_subscription_btn = Button(table_view_window, text="Remove subscription", width="26", height="2")
+    remove_subscription_btn.pack(pady=50)
+
+    # Bottom nav bar
+    # Frame
+    bottom_nav_frame = tk.Frame(table_view_window)
+    bottom_nav_frame.pack(side='bottom', fill='x')
+    # Nav buttons
     home_button = tk.Button(bottom_nav_frame, text='Home', command=homeAction)
     home_button.pack(side='left', fill='both', expand=True)
-    list_view_button = tk.Button(bottom_nav_frame, text='List View')
+    list_view_button = tk.Button(bottom_nav_frame, text='Table View')
     list_view_button.pack(side='left', fill='both', expand=True)
     chart_view_button = tk.Button(bottom_nav_frame, text='Chart View', command=chartViewAction)
     chart_view_button.pack(side='left', fill='both', expand=True)
+
+
+# Remove subscription screen
+def remove_sub():
+    # Set screen position, size, title
+    remove_sub_window = Toplevel(table_view_window)
+    remove_sub_window.geometry("390x844")
+    remove_sub_window.title('Remove subscription')
+    remove_sub_window.configure(bg="#323232")  # Set background color
+
+    # Heading
+    label4 = Label(remove_sub_window, text="Remove Subscription", font='Helvetica 28 bold', fg='white')
+    label4.pack(fill=X, pady=40)
+    label4.configure(bg='#323232')
 
 
 # Chart View Screen
@@ -588,9 +668,13 @@ def chart_view():
 
     home_button = tk.Button(bottom_nav_frame, text='Home', command=homeAction)
     home_button.pack(side='left', fill='both', expand=True)
-    list_view_button = tk.Button(bottom_nav_frame, text='List View', command=listViewAction)
+    list_view_button = tk.Button(bottom_nav_frame, text='Table View', command=tableViewAction)
     list_view_button.pack(side='left', fill='both', expand=True)
     chart_view_button = tk.Button(bottom_nav_frame, text='Chart View')
     chart_view_button.pack(side='left', fill='both', expand=True)
+
+
+
+
 
 mainMenu()
