@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
@@ -6,9 +5,7 @@ import matplotlib.pyplot as plt
 def createLineChart(subscription_data):
     # prepare a dictionary to use key to calculalate the amount of payment by month/year
     pay_payday = {} 
-    print("start")
     for start_date, cycle, end_date, amount in subscription_data:
-        print(start_date)
         #turn string to a date for while loop comparision
         start_DATE = datetime.strptime(start_date, '%m/%d/%y') #keep day here for weekly calculation
         #if subscription already cancled and there is an end_date
@@ -53,14 +50,14 @@ def createLineChart(subscription_data):
     months_x=[]
     #add last one year to the list
     today = datetime.now() #class datetime.datetime
-    first_x=today-relativedelta(months=11) #class datetime.datetime
-    month_x=first_x
+    first_x = today-relativedelta(months=11) #class datetime.datetime
+    month_x = first_x
     while month_x <= today:
-        month_str=month_x.strftime('%-m/%y')
+        month_str = month_x.strftime('%-m/%y')
         months_x.append(month_str)
-        month_x=month_x+relativedelta(months=1)
+        month_x = month_x+relativedelta(months=1)
 
-    #set the x, y
+    #define x, y
     plot_data = {
         'x': months_x,
         'y': [pay_payday.get(month_year, 0) for month_year in months_x] 
@@ -80,14 +77,3 @@ def createLineChart(subscription_data):
                     textcoords='offset points', ha='center')
 
     # plt.show()
-
-            
-            
-
-
-
-
-    
-
-
-

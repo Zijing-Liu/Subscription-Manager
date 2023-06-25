@@ -12,7 +12,8 @@ import requests
 from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
 import linechart
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure
 
 
 
@@ -726,9 +727,10 @@ def remove_sub():
             try_again_btn = Button(remove_missing_window, text="Try again", width="26", height="2", command=lambda: remove_missing_window.destroy())
             try_again_btn.pack(pady=20)
         else:
-            # send a post request to the back end to remove user selected subscription 
+            # Send a post request to the back end to remove user selected subscription 
             response = removeASubscription(selected_subscription_name)
             success = response.json()['success']
+            # If the removal is successful
             if(success):
                 # Clear out the entry box, reset dropdown and calendar picker
                 subscription_name_dropdown.set(' Select a subscription')
@@ -742,21 +744,16 @@ def remove_sub():
                 confirm_btn = Button(submit_success_window, text="Confirm", width="26",
                                 height="2", command=lambda: [submit_success_window.destroy(), remove_sub_window.destroy()])
                 confirm_btn.pack(pady=20)
+            # If the removal is unsuccessful due to system outage/error, prompt users a message
             else:
-                ###################################################### 
-                #           Please redesign this pop-up window        #
-                ###################################################### 
-                # Clear out the entry box, reset dropdown and calendar picker
-                subscription_name_dropdown.set(' Select a subscription')
-                # Pop up window
-                submit_success_window = Toplevel(remove_sub_window)
-                submit_success_window.geometry('300x300')
-                submit_success_window.title('Fail')
-                submit_success_window.configure(bg="#323232")  # Set background color
-                Label(submit_success_window, text="System outrage \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+                remove_error_window = Toplevel(remove_sub_window)
+                remove_error_window.geometry('300x300')
+                remove_error_window.title('Oops')
+                remove_error_window.configure(bg="#323232")  # Set background color
+                Label(remove_error_window, text="System error \U0001F198", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
                 # Confirm button to close the pop up message window
-                confirm_btn = Button(submit_success_window, text="Confirm", width="26",
-                                height="2", command=lambda: [submit_success_window.destroy(), remove_sub_window.destroy()])
+                confirm_btn = Button(remove_error_window, text="Try again", width="26",
+                                height="2", command=lambda: remove_error_window.destroy())
                 confirm_btn.pack(pady=20)
 
 
@@ -871,7 +868,7 @@ def edit_sub():
             try_again_btn = Button(edit_invalid_window, text="Try again", width="26", height="2", command=lambda: edit_invalid_window.destroy())
             try_again_btn.pack(pady=20)
 
-        # If success
+        # If the modification is successful
         else:
             response = editASubscription(selected_subscription_name, selected_starting_date, cost_value, selected_billing_cycle)
             response_success = response.json()['success']
@@ -891,24 +888,16 @@ def edit_sub():
                 confirm_btn = Button(edit_success_window, text="Confirm", width="26",
                                 height="2", command=lambda: [edit_success_window.destroy(), edit_sub_window.destroy()])
                 confirm_btn.pack(pady=20)
-            else:
-                ###################################################### 
-                #           Please redesign this pop-up window        #
-                ###################################################### 
-                #Clear out the entry box, reset dropdown and calendar picker
-                subscription_name_dropdown.set('Select a subscription')
-                cost_entry.delete(0, END)
-                starting_date_cal.selection_set(today)
-                billing_cycle_dropdown.set(' Select a billing cycle')
-                # Pop up window
-                edit_success_window = Toplevel(edit_sub_window)
-                edit_success_window.geometry('300x300')
-                edit_success_window.title('System Error')
-                edit_success_window.configure(bg="#323232")  # Set background color
-                Label(edit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+            # If the modification fails because of a system error on the backend, prompt users a message
+            else: #########
+                edit_error_window = Toplevel(edit_sub_window)
+                edit_error_window.geometry('300x300')
+                edit_error_window.title('Oops')
+                edit_error_window.configure(bg="#323232")  # Set background color
+                Label(edit_error_window, text="System error \U0001F198", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
                 # Confirm button to close the pop up message window
-                confirm_btn = Button(edit_success_window, text="Confirm", width="26",
-                                height="2", command=lambda: [edit_success_window.destroy(), edit_sub_window.destroy()])
+                confirm_btn = Button(edit_error_window, text="Try again", width="26",
+                                height="2", command=lambda: edit_error_window.destroy())
                 confirm_btn.pack(pady=20)
 
 
@@ -936,9 +925,24 @@ def chart_view():
     all_subscription_list = []
     for row in all_subscription:
         all_subscription_list.append(row)
-        print
-    # create the line chart to visualize the current user's spending 
-    linechart.createLineChart(all_subscription_list)
+    
+    # Create the line chart to visualize the current user's spending 
+    def plot():
+        fig = Figure(figsize = (5,5), dpi = 100)
+
+        plot_data = linechart.createLineChart(all_subscription_list)
+        x = plot_data['x']
+        y = plot_data['y']
+
+        plot1 = fig.add_subplot(111)
+
+        plot1.plot(x,y)
+
+        canvas = FigureCanvasTkAgg(fig, master=chart_view_window)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+    plot()
 
     # Bottom nav bar
     bottom_nav_frame = tk.Frame(chart_view_window)
