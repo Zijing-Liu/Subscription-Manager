@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 import re
 import json
 import requests
-# Access local
 from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
 import linechart
@@ -271,7 +270,7 @@ def register():
               font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
         # Confirm button to close the pop up message window
         confirm_btn = Button(sign_up_success_window, text="Confirm", width="26",
-                             height="2", command=lambda: sign_up_success_window.destroy())
+                             height="2", command=lambda: [sign_up_success_window.destroy(), sign_up_window.destroy()])
         confirm_btn.pack(pady=20)
 
 
@@ -536,7 +535,6 @@ def homepage(login_user_name, user_email):
     def tableViewAction():
         table_view()
     def chartViewAction():
-        
         chart_view()
     # Frame
     bottom_nav_frame = tk.Frame(homepage_window)
@@ -555,6 +553,7 @@ def table_view():
     global table_view_window
     global user_email
     global subscription_dic
+
     # Set screen position, size, title
     table_view_window = Toplevel(main_window)
     table_view_window.geometry("390x844")
@@ -584,6 +583,7 @@ def table_view():
     user_email = login_user_email
     subscriptions = getAllSubscriptions()
     subscription_json =subscriptions.json()
+
     # get the dictionay of the subscription
     subscription_dic = (subscription_json['all_subscriptions'])
     
@@ -616,7 +616,7 @@ def table_view():
         # (Completed cycle + 1) * (days in one billing cycle) => # of days after the next billing cycle
         # Start date + (Completed cycle + 1) * (days in one billing cycle) => adds up the days to calculate the next billing date from the starting date
         next_billing_date = row_start_datetime + timedelta(days = (completed_cycles + 1) * billing_days_duration.days)
-        next_billing_date = next_billing_date.strftime('%-m/%d/%y')
+        next_billing_date = next_billing_date.strftime('%-m/%-d/%y')
 
         # Insert into table
         table.insert("", "end", values=(row[0], row[1], row[2], row[3], next_billing_date))
@@ -630,13 +630,17 @@ def table_view():
     table.column("Next charge on", width=100, anchor=tk.CENTER)
     # Font
     style = ttk.Style()
-    style.configure("Treeview", font=('Helvetica', 9))
+    style.configure("Treeview", font=('Helvetica', 11))
     # Pack the treeview widget
     table.pack(fill="both", expand=True)
 
     # Remove subscription button
-    remove_subscription_btn = Button(table_view_window, text="Remove subscription", width="26", height="2")
-    remove_subscription_btn.pack(pady=50)
+    remove_subscription_btn = Button(table_view_window, text="Remove subscription", width="26", height="2", command=remove_sub)
+    remove_subscription_btn.pack(pady=20)
+    # Edit subscription button
+    edit_subscription_btn = Button(table_view_window, text="Edit subscription", width="26", height="2", command=edit_sub)
+    edit_subscription_btn.pack(pady=20)
+
 
     # Bottom nav bar
     # Frame
@@ -656,13 +660,211 @@ def remove_sub():
     # Set screen position, size, title
     remove_sub_window = Toplevel(table_view_window)
     remove_sub_window.geometry("390x844")
-    remove_sub_window.title('Remove subscription')
+    remove_sub_window.title('Remove Subscription')
     remove_sub_window.configure(bg="#323232")  # Set background color
 
     # Heading
-    label4 = Label(remove_sub_window, text="Remove Subscription", font='Helvetica 28 bold', fg='white')
+    label4 = Label(remove_sub_window, text="Remove Subscription \U0001F5D1", font='Helvetica 28 bold', fg='white')
     label4.pack(fill=X, pady=40)
     label4.configure(bg='#323232')
+
+    # Disclaimer message
+    label5 = Label(remove_sub_window, text="Select the subscription name you want to remove", font="Helvetica 14", fg="white")
+    label5.pack(fill=X, pady=20)
+    label5.configure(bg='#323232')
+
+    # Make a frame for dropdown
+    remove_sub_panel = Frame(remove_sub_window)
+    remove_sub_panel.configure(bg='#323232')
+    remove_sub_panel.pack(pady=30)
+
+    # Subscription name dropdown
+    # Extract subscription name users have already recorded
+    # Create a list of options for the dropdown list
+    subscription_name = []
+    for row in subscription_dic:
+        subscription_name.append(row[0])
+
+    subscription_name_options = subscription_name
+    # Create a combobox widget and a label
+    subscription_name_label = Label(remove_sub_panel, text="Subscription name: ", bg="#323232", fg="white")
+    subscription_name_label.grid(row=0, column=0)
+    subscription_name_dropdown = Combobox(remove_sub_panel, values = subscription_name_options, state="readonly")
+    # Set an initial value for the dropdown
+    subscription_name_dropdown.set(' Select a subscription')
+    subscription_name_dropdown.grid(row=0, column=1)
+    
+    # Remove subscription command function
+    def removeSubscription():
+        # Get the variables
+        selected_subscription_name = subscription_name_dropdown.get()
+        # If inputs are empty, prompt an alert message
+        if selected_subscription_name == " Select a subscription":
+            remove_missing_window = Toplevel(remove_sub_window)
+            remove_missing_window.geometry('300x300')
+            remove_missing_window.title('Oops')
+            remove_missing_window.configure(bg="#323232")  # Set background color
+            Label(remove_missing_window, text="Something is missing \U0001F494", font='Helvetica 20 bold', bg="#323232", fg="white").pack(fill=X, pady=40)
+            # Try again button
+            try_again_btn = Button(remove_missing_window, text="Try again", width="26", height="2", command=lambda: remove_missing_window.destroy())
+            try_again_btn.pack(pady=20)
+        else:
+            #################################################################
+            ## NEED TO PASS DATA TO BACKEND
+            #################################################################
+            print(selected_subscription_name)
+
+            # Clear out the entry box, reset dropdown and calendar picker
+            subscription_name_dropdown.set(' Select a subscription')
+            # Pop up window
+            submit_success_window = Toplevel(remove_sub_window)
+            submit_success_window.geometry('300x300')
+            submit_success_window.title('Success')
+            submit_success_window.configure(bg="#323232")  # Set background color
+            Label(submit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+            # Confirm button to close the pop up message window
+            confirm_btn = Button(submit_success_window, text="Confirm", width="26",
+                            height="2", command=lambda: [submit_success_window.destroy(), remove_sub_window.destroy()])
+            confirm_btn.pack(pady=20)
+
+
+    # Remove subscription button
+    submit_subscription_btn = Button(remove_sub_window, text="Remove", width="26", height="2", command=removeSubscription)
+    submit_subscription_btn.pack(pady=20)
+
+
+# Edit subscription screen
+def edit_sub():
+    cost = StringVar()
+    # Set screen position, size, title
+    edit_sub_window = Toplevel(table_view_window)
+    edit_sub_window.geometry("390x844")
+    edit_sub_window.title('Edit Subscription')
+    edit_sub_window.configure(bg="#323232")  # Set background color
+
+    # Heading
+    label4 = Label(edit_sub_window, text="Edit Subscription \U0001F58D", font='Helvetica 28 bold', fg='white')
+    label4.pack(fill=X, pady=40)
+    label4.configure(bg='#323232')
+
+    # Disclaimer message
+    label5 = Label(edit_sub_window, text="Use the form to edit your subscription details", font="Helvetica 14", fg="white")
+    label5.pack(fill=X, pady=20)
+    label5.configure(bg='#323232')
+
+    # Make a frame for inputs
+    edit_sub_panel = Frame(edit_sub_window)
+    edit_sub_panel.configure(bg='#323232')
+    edit_sub_panel.pack(pady=30)
+
+    # Create a list of options for the dropdown list
+    # Extract subscription name users have already recorded
+    subscription_name = []
+    for row in subscription_dic:
+        subscription_name.append(row[0])
+    subscription_name_options = subscription_name
+    # Create a combobox widget and a label
+    subscription_name_label = Label(edit_sub_panel, text="Subscription name: ", bg="#323232", fg="white")
+    subscription_name_label.grid(row=0, column=0)
+    subscription_name_dropdown = Combobox(edit_sub_panel, values = subscription_name_options, state="readonly")
+    # Set an initial value for the dropdown
+    subscription_name_dropdown.set(' Select a subscription')
+    subscription_name_dropdown.grid(row=0, column=1)
+
+    # Spacing between input fields
+    Label(edit_sub_panel, text="", bg="#323232", fg="white").grid(row=1)
+
+    # Cost input
+    cost_label = Label(edit_sub_panel, text="Cost: $ ", bg="#323232", fg="white")
+    cost_label.grid(row=2, column=0)
+    cost_entry = Entry(edit_sub_panel,textvariable= cost)
+    cost_entry.grid(row=2, column=1)
+
+    # Spacing between input fields
+    Label(edit_sub_panel, text="", bg="#323232", fg="white").grid(row=3)
+
+    # Starting date datepicker
+    # Create a label
+    starting_date_label = Label(edit_sub_panel, text="Starting date: ", bg="#323232", fg="white")
+    starting_date_label.grid(row=4, column=0)
+    # Get today's date
+    today = dt.date.today()
+    # Create a calendar
+    starting_date_cal = Calendar(edit_sub_panel, selectmode='day', year=today.year, month=today.month, day=today.day, width=10, height=30, background='white', foreground='black', selectforeground='red')
+    starting_date_cal.grid(row=4, column=1)
+
+    # Spacing between input fields
+    Label(edit_sub_panel, text="", bg="#323232", fg="white").grid(row=5)
+
+    # Billing cycle dropdown
+    # Create a list of options for the dropdown list
+    billing_cycle_options = ['weekly', 'monthly', '3-months', '6-months', 'annually']
+    # Create a combobox widget and a label
+    billing_cycle_options_label = Label(edit_sub_panel, text="Billing cycle: ", bg="#323232", fg="white")
+    billing_cycle_options_label.grid(row=6, column=0)
+    billing_cycle_dropdown = Combobox(edit_sub_panel, values = billing_cycle_options, state="readonly")
+    # Set an initial value for the dropdown
+    billing_cycle_dropdown.set(' Select a billing cycle')
+    billing_cycle_dropdown.grid(row=6, column=1)
+
+    # Edit subscription function
+    def editSubscription():
+        # Define a valid cost pattern
+        validCostPattern = r'^\d+(\.\d{1,2})?$'
+        # Get the variables
+        selected_subscription_name = subscription_name_dropdown.get()
+        cost_value = cost.get()
+        selected_starting_date = starting_date_cal.get_date()
+        selected_billing_cycle = billing_cycle_dropdown.get()
+
+        # If inputs are empty, prompt an alert message
+        if selected_subscription_name == " Select a subscription" or cost_value == "" or selected_billing_cycle == " Select a billing cycle":
+            edit_missing_window = Toplevel(edit_sub_window)
+            edit_missing_window.geometry('300x300')
+            edit_missing_window.title('Oops')
+            edit_missing_window.configure(bg="#323232")  # Set background color
+            Label(edit_missing_window, text="Something is missing \U0001F494", font='Helvetica 20 bold', bg="#323232", fg="white").pack(fill=X, pady=40)
+            # Try again button
+            try_again_btn = Button(edit_missing_window, text="Try again", width="26", height="2", command=lambda: edit_missing_window.destroy())
+            try_again_btn.pack(pady=20)
+
+        # If the cost input is invalid, prompt an error message
+        elif not re.match(validCostPattern, cost_value):
+            edit_invalid_window = Toplevel(edit_sub_window)
+            edit_invalid_window.geometry('300x300')
+            edit_invalid_window.title('Error')
+            edit_invalid_window.configure(bg="#323232")  # Set background color
+            Label(edit_invalid_window, text="Invalid cost input \U0001F92F", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+            # Try again button
+            try_again_btn = Button(edit_invalid_window, text="Try again", width="26", height="2", command=lambda: edit_invalid_window.destroy())
+            try_again_btn.pack(pady=20)
+
+        # If success
+        else:
+            #################################################################
+            ## NEED TO PASS DATA TO BACKEND
+            #################################################################
+
+            # Clear out the entry box, reset dropdown and calendar picker
+                subscription_name_dropdown.set(' Select a subscription')
+                cost_entry.delete(0, END)
+                starting_date_cal.selection_set(today)
+                billing_cycle_dropdown.set(' Select a billing cycle')
+                # Pop up window
+                edit_success_window = Toplevel(edit_sub_window)
+                edit_success_window.geometry('300x300')
+                edit_success_window.title('Success')
+                edit_success_window.configure(bg="#323232")  # Set background color
+                Label(edit_success_window, text="Success \U0001F973", font="Helvetica 20 bold", bg="#323232", fg="white").pack(fill=X, pady=40)
+                # Confirm button to close the pop up message window
+                confirm_btn = Button(edit_success_window, text="Confirm", width="26",
+                                height="2", command=lambda: [edit_success_window.destroy(), edit_sub_window.destroy()])
+                confirm_btn.pack(pady=20)
+
+
+    # Edit subscription button
+    submit_subscription_btn = Button(edit_sub_window, text="Edit", width="26", height="2", command=editSubscription)
+    submit_subscription_btn.pack(pady=20)
 
 
 # Chart View Screen
@@ -697,4 +899,3 @@ def chart_view():
 
 
 mainMenu()
-
