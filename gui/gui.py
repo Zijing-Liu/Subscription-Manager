@@ -73,9 +73,9 @@ def postNewSubscription():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
-def getAllSubscriptions():
+def getActiveSubscriptions():
     url = 'http://localhost:8000/listview'
-    user = {'email': user_email}  
+    user = {'email': login_user_email}  
     try:
         response = requests.post(url, json = user)
         response.raise_for_status() 
@@ -84,9 +84,21 @@ def getAllSubscriptions():
     except requests.exceptions.RequestException as e:
         print('Error:', e)
 
+def getAllSubscriptions():
+    url = 'http://localhost:8000/chartview'
+    user = {'email': login_user_email}  
+    try:
+        response = requests.post(url, json = user)
+        response.raise_for_status() 
+        print(response.status_code)
+        return response
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+
+
 def cancelASubscription():
     url = 'http://localhost:8000/cancel'
-    subscription = {'email': user_email,
+    subscription = {'email': login_user_email,
                     'cancel_subscription_name': 'cancel_subscription_name'}  
     try:
         response = requests.post(url, json = subscription)
@@ -98,7 +110,7 @@ def cancelASubscription():
 
 def editASubscription():
     url = 'http://localhost:8000/edit'
-    subscription = {'email': user_email,
+    subscription = {'email': login_user_email,
                     'edit_subscription_name': 'edit_subscription_name',
                     'edit_start_date': 'edit_start_date',
                     'amount': 'edit_amount',
@@ -111,6 +123,7 @@ def editASubscription():
         return response
     except requests.exceptions.RequestException as e:
         print('Error:', e)
+
 
  ################################################# HTTP requests end here
 
@@ -581,7 +594,7 @@ def table_view():
 
     # Get a list of all subscription data under the current user 
     user_email = login_user_email
-    subscriptions = getAllSubscriptions()
+    subscriptions = getActiveSubscriptions()
     subscription_json =subscriptions.json()
 
     # get the dictionay of the subscription
@@ -880,8 +893,15 @@ def chart_view():
     label4.pack(fill=X, pady=40)
     label4.configure(bg='#323232')
 
+    # Get all subscription data under the current user's profie
+    response = getAllSubscriptions()
+    all_subscription = response.json()['data']
+    all_subscription_list = []
+    for row in all_subscription:
+        all_subscription_list.append(row)
+        print
     # create the line chart to visualize the current user's spending 
-    linechart.createLineChart(subscription_dic)
+    linechart.createLineChart(all_subscription_list)
 
     # Bottom nav bar
     bottom_nav_frame = tk.Frame(chart_view_window)

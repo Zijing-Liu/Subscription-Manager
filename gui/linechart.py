@@ -12,6 +12,7 @@ import requests, sqlite3
 def createLineChart(subscription_data):
     # prepare a dictionary to use key to calculalate the amount of payment by month/year
     pay_payday = {} 
+    print("start")
     for start_date, cycle, end_date, amount in subscription_data:
         print(start_date)
         #turn string to a date for while loop comparision

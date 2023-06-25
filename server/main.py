@@ -259,6 +259,56 @@ class ListView(Resource):
             }
             return response2
 
+class ChartView(Resource):
+    # post method to get all the subscription data from the database and send the response to the GUI for display
+    def post(self):
+        user = request.get_json()
+        print(user)
+        # get each value of the json data and write into new variables
+        email = user.get('email')
+
+        try:
+            # use the email to get the user id from the User table
+            conn = get_db_connection()
+            print("connected to database")
+            user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
+            # convert the row object to tuple
+            user_id = tuple(user_id_row)[0]
+            # if the user is not found in the database (not loged in), return false and the error message
+            if user_id == None:
+                return {
+                    'success': False,
+                    'msg': "Email not found",
+                    'data': []
+
+                }
+
+            # Fetch all the subscription data under the current user name
+            subscriptions = conn.execute('SELECT SUB.start_date, SUB.subscription_cycle, SUB.end_date, SUB.amount FROM SUBSCRIPTION AS SUB JOIN COMPANY AS CO ON CO.co_id = SUB.co_id WHERE SUB.user_id = ?', (user_id,)).fetchall()
+            # Use list to store all the subscription tuple data
+            subscriptions_list = []
+            for row in subscriptions:
+                subscriptions_list.append(row)
+            subscriptions_list = [tuple(row) for row in subscriptions_list]
+            response = {
+                'success': True,
+                'msg': "Fetch data success",
+                'data': subscriptions_list      
+            }
+            conn.commit()
+            conn.close()
+
+            return response
+            
+        except Exception as e:
+            print("An error occurred:", str(e))
+            response2 = {
+                'success': False,
+                'msg': str(e),
+                'data': []
+            }
+            return response2
+
 class Cancel(Resource):
     def post(seld):
         # parse the post request data as json
@@ -350,6 +400,7 @@ api.add_resource(UserSignUp, '/signup')
 api.add_resource(UserLogIn, '/login')
 api.add_resource(Homepage, '/homepage')
 api.add_resource(ListView, '/listview')
+api.add_resource(ChartView, '/chartview')
 api.add_resource(Cancel, '/cancel')
 api.add_resource(Edit, '/edit')
 # start the server and the flask application
