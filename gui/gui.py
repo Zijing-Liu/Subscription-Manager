@@ -334,7 +334,7 @@ def loginVerify():
 
 # Create a homepage
 def homepage(login_user_name, user_email):
-    global homeAction, listViewAction, chartViewAction
+    global homeAction, tableViewAction, chartViewAction
     global login_user_email
     login_user_email = user_email
     cost = StringVar()
@@ -492,47 +492,100 @@ def homepage(login_user_name, user_email):
     submit_subscription_btn.pack(pady=20)
 
     # Bottom nav bar
+    # Action
     def homeAction():
         homepage(login_user_name, user_email)
-    def listViewAction():
-        list_view()
+    def tableViewAction():
+        table_view()
     def chartViewAction():
         chart_view()
-
+    # Frame
     bottom_nav_frame = tk.Frame(homepage_window)
     bottom_nav_frame.pack(side='bottom', fill='x')
-
+    # Nav tabs
     home_button = tk.Button(bottom_nav_frame, text='Home')
     home_button.pack(side='left', fill='both', expand=True)
-    list_view_button = tk.Button(bottom_nav_frame, text='List View', command=listViewAction)
+    list_view_button = tk.Button(bottom_nav_frame, text='Table View', command=tableViewAction)
     list_view_button.pack(side='left', fill='both', expand=True)
     chart_view_button = tk.Button(bottom_nav_frame, text='Chart View', command=chartViewAction)
     chart_view_button.pack(side='left', fill='both', expand=True)
 
 
 # List View Screen
-def list_view():
+def table_view():
+    global table_view_window
     # Set screen position, size, title
-    list_view_window = Toplevel(main_window)
-    list_view_window.geometry("390x844")
-    list_view_window.title('List View')
-    list_view_window.configure(bg="#323232")  # Set background color
+    table_view_window = Toplevel(main_window)
+    table_view_window.geometry("390x844")
+    table_view_window.title('Table View')
+    table_view_window.configure(bg="#323232")  # Set background color
 
     # Heading
-    label4 = Label(list_view_window, text="List View \U0001F4CB", font='Helvetica 28 bold', fg='white')
+    label4 = Label(table_view_window, text="Table View \U0001F4CB", font='Helvetica 28 bold', fg='white')
     label4.pack(fill=X, pady=40)
     label4.configure(bg='#323232')
 
-    # Bottom nav bar
-    bottom_nav_frame = tk.Frame(list_view_window)
-    bottom_nav_frame.pack(side='bottom', fill='x')
+    # Make a frame for treeview
+    table_view_panel = Frame(table_view_window)
+    table_view_panel.configure(bg='#323232')
+    table_view_panel.pack()
 
+    # Create a treeview table
+    table = ttk.Treeview(table_view_panel, columns=("Subscription", "Cost", "Starting date", "Billing cycle", "Next charge on"))
+    # Name column headings
+    table.heading("Subscription", text="Subscription")
+    table.heading("Cost", text="Cost ($)")
+    table.heading("Starting date", text="Starting date")
+    table.heading("Billing cycle", text="Billing cycle")
+    table.heading("Next charge on", text="Next charge on")
+
+    # Insert sample data into the table
+    table.insert("", "end", values=("Netflix", "12.99", "01/15/2022", "monthly", "02/15/2022"))
+    table.insert("", "end", values=("Amazon Prime", "9.99", "03/08/2022", "annually", "03/08/2023"))
+    table.insert("", "end", values=("Spotify", "9.99", "02/20/2022", "monthly", "03/02/2022"))
+
+    # Configure column properties
+    table.column("#0", width=0, stretch=tk.NO)  # Hide the first indexing column (default)
+    table.column("Subscription", width=80, anchor=tk.CENTER)
+    table.column("Cost", width=60, anchor=tk.CENTER)
+    table.column("Starting date", width=80, anchor=tk.CENTER)
+    table.column("Billing cycle", width=80, anchor=tk.CENTER)
+    table.column("Next charge on", width=100, anchor=tk.CENTER)
+    # Font
+    style = ttk.Style()
+    style.configure("Treeview", font=('Helvetica', 9))
+    # Pack the treeview widget
+    table.pack(fill="both", expand=True)
+
+    # Remove subscription button
+    remove_subscription_btn = Button(table_view_window, text="Remove subscription", width="26", height="2")
+    remove_subscription_btn.pack(pady=50)
+
+    # Bottom nav bar
+    # Frame
+    bottom_nav_frame = tk.Frame(table_view_window)
+    bottom_nav_frame.pack(side='bottom', fill='x')
+    # Nav buttons
     home_button = tk.Button(bottom_nav_frame, text='Home', command=homeAction)
     home_button.pack(side='left', fill='both', expand=True)
-    list_view_button = tk.Button(bottom_nav_frame, text='List View')
+    list_view_button = tk.Button(bottom_nav_frame, text='Table View')
     list_view_button.pack(side='left', fill='both', expand=True)
     chart_view_button = tk.Button(bottom_nav_frame, text='Chart View', command=chartViewAction)
     chart_view_button.pack(side='left', fill='both', expand=True)
+
+
+# Remove subscription screen
+def remove_sub():
+    # Set screen position, size, title
+    remove_sub_window = Toplevel(table_view_window)
+    remove_sub_window.geometry("390x844")
+    remove_sub_window.title('Remove subscription')
+    remove_sub_window.configure(bg="#323232")  # Set background color
+
+    # Heading
+    label4 = Label(remove_sub_window, text="Remove Subscription", font='Helvetica 28 bold', fg='white')
+    label4.pack(fill=X, pady=40)
+    label4.configure(bg='#323232')
 
 
 # Chart View Screen
@@ -554,9 +607,13 @@ def chart_view():
 
     home_button = tk.Button(bottom_nav_frame, text='Home', command=homeAction)
     home_button.pack(side='left', fill='both', expand=True)
-    list_view_button = tk.Button(bottom_nav_frame, text='List View', command=listViewAction)
+    list_view_button = tk.Button(bottom_nav_frame, text='Table View', command=tableViewAction)
     list_view_button.pack(side='left', fill='both', expand=True)
     chart_view_button = tk.Button(bottom_nav_frame, text='Chart View')
     chart_view_button.pack(side='left', fill='both', expand=True)
+
+
+
+
 
 mainMenu()
