@@ -60,7 +60,7 @@ def createLineChart(subscription_data):
     #define x, y
     plot_data = {
         'x': months_x,
-        'y': [pay_payday.get(month_year, 0) for month_year in months_x] 
+        'y': [round(pay_payday.get(month_year, 0), 2) for month_year in months_x] 
     }
     return plot_data
  

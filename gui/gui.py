@@ -583,6 +583,11 @@ def table_view():
     label4.pack(fill=X, pady=40)
     label4.configure(bg='#323232')
 
+    # Disclaimer message
+    label5 = Label(table_view_window, text="The view ONLY presents active subscription records", font="Helvetica 14", fg="white")
+    label5.pack(fill=X, pady=(0,20))
+    label5.configure(bg='#323232')
+
     # Make a frame for treeview
     table_view_panel = Frame(table_view_window)
     table_view_panel.configure(bg='#323232')
@@ -919,6 +924,11 @@ def chart_view():
     label4.pack(fill=X, pady=40)
     label4.configure(bg='#323232')
 
+    # Disclaimer message
+    label5 = Label(chart_view_window, text="The view presents ALL subscription records", font="Helvetica 14", fg="white")
+    label5.pack(fill=X, pady=(0,20))
+    label5.configure(bg='#323232')
+
     # Get all subscription data under the current user's profie
     response = getAllSubscriptions()
     all_subscription = response.json()['data']
@@ -928,7 +938,7 @@ def chart_view():
     
     # Create the line chart to visualize the current user's spending 
     def plot():
-        fig = Figure(figsize = (5,5), dpi = 100)
+        fig = Figure(figsize = (4,6.3), dpi = 100)
 
         plot_data = linechart.createLineChart(all_subscription_list)
         x = plot_data['x']
@@ -936,7 +946,16 @@ def chart_view():
 
         plot1 = fig.add_subplot(111)
 
-        plot1.plot(x,y)
+        plot1.plot(x,y,marker ='s')
+        plot1.set_xlabel('Month/Year')
+        plot1.set_ylabel('Total Spending')
+        plot1.set_title('Subscription Spending in the Past 12 Months')
+        # Add value annotations
+        for i, j in zip(x, y):
+            plot1.annotate(str(j), xy=(i, j), xytext=(0, -15),
+                    textcoords='offset points', ha='center')
+
+        plot1.set_xticklabels(x, rotation=90)
 
         canvas = FigureCanvasTkAgg(fig, master=chart_view_window)
         canvas.draw()
