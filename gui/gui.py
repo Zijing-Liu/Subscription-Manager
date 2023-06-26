@@ -577,7 +577,7 @@ def table_view():
     label4.configure(bg='#323232')
 
     # Disclaimer message
-    label5 = Label(table_view_window, text="The view ONLY presents active subscription records", font="Helvetica 14", fg="white")
+    label5 = Label(table_view_window, text="This view presents ONLY active subscription records", font="Helvetica 14", fg="white")
     label5.pack(fill=X, pady=(0,20))
     label5.configure(bg='#323232')
 
@@ -918,7 +918,7 @@ def chart_view():
     label4.configure(bg='#323232')
 
     # Disclaimer message
-    label5 = Label(chart_view_window, text="The view presents ALL subscription records", font="Helvetica 14", fg="white")
+    label5 = Label(chart_view_window, text="This view presents ALL subscription records", font="Helvetica 14", fg="white")
     label5.pack(fill=X, pady=(0,20))
     label5.configure(bg='#323232')
 
@@ -931,7 +931,7 @@ def chart_view():
     
     # Create the line chart to visualize the current user's spending 
     def plot():
-        fig = Figure(figsize = (3.9,6.1), dpi = 100)
+        fig = Figure(figsize = (4.7,6.3), dpi = 80)
 
         plot_data = linechart.createLineChart(all_subscription_list)
         x = plot_data['x']
@@ -939,9 +939,10 @@ def chart_view():
 
         plot1 = fig.add_subplot(111)
 
+        # Add labels and title
         plot1.plot(x,y,marker ='s')
         plot1.set_xlabel('Month/Year')
-        plot1.set_ylabel('Total Spending')
+        plot1.set_ylabel('Total Spending ($)')
         plot1.set_title('Subscription Spending in the Past 6 Months')
         # Add value annotations
         for i, j in zip(x, y):
