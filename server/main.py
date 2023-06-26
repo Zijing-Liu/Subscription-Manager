@@ -2,7 +2,6 @@
 from flask import Flask, request, redirect
 import tkinter as tk
 from flask_restful import Api, Resource
-# From flask_sqlalchemy import SQLAlchemy
 import sqlite3, bcrypt, json
 from datetime import date
 
@@ -11,14 +10,14 @@ app = Flask(__name__)
 api = Api(app)
 
 #### constant definitions ####
-# define the response for failed reqests
+# define the response for failed requests
 request_fail = {
                 'success': False,
                 'msg': 'Database connection failed'
             }
 #### End of constant definitions ####
 
-#### Helper funciton ####
+#### Helper function ####
 
 # Function to connect to the sql database
 def get_db_connection():
@@ -35,17 +34,17 @@ def encryptPassword(password_text):
     salt = bcrypt.gensalt()
     # Hashing the password
     password_text_hashed = bcrypt.hashpw(bytes, salt)
-    # convert the passwrod from byte to string
+    # convert the password from byte to string
     hashed_password_str = password_text_hashed.decode('utf-8')
     salt_str = salt.decode('utf-8')
-    # return the encryption as josn
+    # return the encryption as json
     encryption = {
     'salt': salt_str,
     'password_hashed': hashed_password_str
     }
     return encryption
 
-#### End of helper funciton ####
+#### End of helper function ####
 
 # Define a resource class for the user signup endpoint
 class UserSignUp(Resource):
@@ -58,7 +57,7 @@ class UserSignUp(Resource):
             conn = get_db_connection()
             for row in conn.execute('SELECT email FROM User').fetchall():
                 users_list.append(row)
-            # Conver each sqlite3.Row object into tuple
+            # Convert each sqlite3.Row object into tuple
             users_list = [tuple(row) for row in users_list]
             # close the data connection 
             conn.close()
@@ -82,7 +81,7 @@ class UserSignUp(Resource):
 
         
         try:
-            # Connect to db and insert a new data tuple, wrting name, email, password_hashed, salt into the User table
+            # Connect to db and insert a new data tuple, insert a row into the User table
             conn = get_db_connection()
             conn.execute('''INSERT OR REPLACE INTO User
                 (name, email, password_hashed, salt) VALUES (?, ?, ?, ?)''',
@@ -91,7 +90,7 @@ class UserSignUp(Resource):
             conn.commit()
             #  close the existing db connection
             conn.close()
-            # rediect back to the signup page
+            # redirect back to the signup page
             return redirect('/signup')
         # return a request_fail response if failed to insert new data into User table
         except Exception as e:
@@ -122,7 +121,7 @@ class UserLogIn(Resource):
             user_email = user_data[2]
             # end the current connection
             conn.close()
-            # conver the password from str back to byte for verification
+            # convert the password from str back to byte for verification
             hashed_password_bytes = password_hashed.encode('utf-8')
             # encode the password sent from the front end 
             user_password_bytes= user_password.encode('utf-8')
@@ -140,19 +139,19 @@ class UserLogIn(Resource):
             print("An error occurred:", str(e))
             return request_fail
 
-# Define a Homepgae resource for the 'homepage' endpoint
+# Define a Homepage resource for the 'homepage' endpoint
 class Homepage(Resource):
     def post(self):
         # parse the post request data as json
-        new_subcription = request.get_json()
+        new_subscription = request.get_json()
         # get each value of the json data and write into new variables
-        email = new_subcription.get('user_email')
-        sub_name = new_subcription.get('sub_name')
-        amount = new_subcription.get('amount')
-        date = new_subcription.get('date')
+        email = new_subscription.get('user_email')
+        sub_name = new_subscription.get('sub_name')
+        amount = new_subscription.get('amount')
+        date = new_subscription.get('date')
 
 
-        subscription_cycle = new_subcription.get('subscription_cycle')
+        subscription_cycle = new_subscription.get('subscription_cycle')
 
         # use the email to get the user id from the User table
         conn = get_db_connection()
@@ -160,7 +159,7 @@ class Homepage(Resource):
         # convert the row object to tuple
         user_id = tuple(user_id_row)[0]
 
-        # if the user is not found in the database (not loged in), return false and the error message
+        # if the user is not found in the database (not logged in), return false and the error message
         if user_id_row[0] == None:
             return {
                 'success': False,
@@ -230,7 +229,7 @@ class ListView(Resource):
             # convert the row object to tuple
             user_id = tuple(user_id_row)[0]
   
-            # if the user is not found in the database (not loged in), return false and the error message
+            # if the user is not found in the database (not logged in), return false and the error message
             if user_id == None:
                 return {
                     'success': False,
@@ -244,7 +243,7 @@ class ListView(Resource):
             for row in subscriptions:
                 subscriptions_list.append(row)
             subscriptions_list = [tuple(row) for row in subscriptions_list]
-            # sotre the subscriptions_list in a dictionary and return 
+            # store the subscriptions_list in a dictionary and return 
             response = {
                 'all_subscriptions': subscriptions_list,
             }
@@ -277,7 +276,6 @@ class ChartView(Resource):
                     'success': False,
                     'msg': "Email not found",
                     'data': []
-
                 }
 
             # Fetch all the subscription data under the current user name
@@ -287,7 +285,7 @@ class ChartView(Resource):
             for row in subscriptions:
                 subscriptions_list.append(row)
             subscriptions_list = [tuple(row) for row in subscriptions_list]
-            # sotre values in dictionary and send data in response object
+            # store values in dictionary and send data in response object
             response = {
                 'success': True,
                 'msg': "Fetch data success",
@@ -307,7 +305,7 @@ class ChartView(Resource):
 class Remove(Resource):
     # Define the post HTTP method in Remove Resource to update a tuple in Subscription table in db
     def post(self):
-        # parse the post request data as json
+        # parse the HTTP request data as json
         remove = request.get_json()
         # Get email, remove_subscription_name of the json data and assign them into new variables
         email = remove.get('email')
@@ -321,9 +319,8 @@ class Remove(Resource):
             # Convert the row object to tuple
             user_id = tuple(user_id_row)[0]
             co_id = tuple(co_id_row)[0]
-            
-            # Update the end_date value of this subscripotion tuple with the current date.
-            # Get the date of today (date when a HTTP post request is made), convert the format to match with the end_date filed in db
+            # Update the end_date value of this subscription tuple with the current date.
+            # Get the date of today, convert the format to match with the end_date filed in db
             end_date = date.today().strftime('%-m/%-d/%y')
             # Select the row in the subscription where user_id and co_id is equal to the posted user_id and co_id
             # Update the end_date value for the this selected row
@@ -332,7 +329,7 @@ class Remove(Resource):
                 SET end_date = ?
                 WHERE user_id = ? AND co_id = ?
             ''', (end_date, user_id, co_id)) 
-            # Commit the pending transcation to db
+            # Commit the pending transaction to db
             conn.commit()
             # Close the current connection
             conn.close()
@@ -368,7 +365,6 @@ class Edit(Resource):
             # convert the row object to tuple
             user_id = tuple(user_id_row)[0]
             co_id = tuple(co_id_row)[0]
-
             # update the attributes in the row of the Subscription table associated with the user_id and co_id sent from the client
             conn.execute('''
                     UPDATE Subscription
@@ -389,6 +385,7 @@ class Edit(Resource):
         except Exception as e:
             print("An error occurred:", str(e))
             return request_fail
+        
 # Resourceful Routing¶ to access to multiple HTTP methods by defining methods 
 # Register the resource UserSignUp with the '/signup' URL endpoint
 api.add_resource(UserSignUp, '/signup')
