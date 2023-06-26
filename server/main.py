@@ -210,7 +210,7 @@ class Homepage(Resource):
                     'msg': "New subscription added."
                 }
                 return response2
-            # return false and err message if any other error happened during writing data into the database
+            # return request_fail response object if login verification failed
             except Exception as e:
                 print("An error occurred:", str(e))
                 return request_fail
@@ -251,7 +251,8 @@ class ListView(Resource):
             conn.commit()
             conn.close()
             return response
-            
+        
+        # return request_fail response object if login verification failed
         except Exception as e:
             print("An error occurred:", str(e))
             return request_fail
@@ -280,13 +281,13 @@ class ChartView(Resource):
                 }
 
             # Fetch all the subscription data under the current user name
-            subscriptions = conn.execute('SELECT SUB.start_date, SUB.subscription_cycle, SUB.end_date, SUB.amount FROM SUBSCRIPTION AS SUB JOIN COMPANY AS CO ON CO.co_id = SUB.co_id WHERE and SUB.user_id = ? ', (user_id,)).fetchall()
+            subscriptions = conn.execute('SELECT SUB.start_date, SUB.subscription_cycle, SUB.end_date, SUB.amount FROM SUBSCRIPTION AS SUB JOIN COMPANY AS CO ON CO.co_id = SUB.co_id WHERE SUB.user_id = ? ', (user_id,)).fetchall()
             # Use list to store all the subscription tuple data
             subscriptions_list = []
             for row in subscriptions:
                 subscriptions_list.append(row)
             subscriptions_list = [tuple(row) for row in subscriptions_list]
-
+            # sotre values in dictionary and send data in response object
             response = {
                 'success': True,
                 'msg': "Fetch data success",
@@ -296,11 +297,13 @@ class ChartView(Resource):
             conn.close()
 
             return response
-            
+        
+        # return request_fail response object if login verification failed
         except Exception as e:
             print("An error occurred:", str(e))
             return request_fail
-
+        
+# Define a Remove resource adding to the '/remove' endpoint 
 class Remove(Resource):
     # Define the post HTTP method in Remove Resource to update a tuple in Subscription table in db
     def post(self):
@@ -340,13 +343,15 @@ class Remove(Resource):
             }
             return response
         
-
+        # return request_fail response object if login verification failed
         except Exception as e:
             print("An error occurred:", str(e))
             return request_fail
 
+# Define Edit Resource adding to the 'edit' endpoint
 class Edit(Resource):
     def post(self):
+        # parse post data as json 
         edit = request.get_json()
         email = edit.get('email')
         subscription_name = edit.get('edit_subscription_name')
@@ -354,30 +359,33 @@ class Edit(Resource):
         amount = edit.get('amount')
         subscription_cycle = edit.get('subscription_cycle')
 
-    
         try:
             # use the email to get the user id from the User table
+            # user the subscription_name to get co_id fro the Company table
             conn = get_db_connection()
             user_id_row = conn.execute('SELECT user_id FROM USER WHERE email = ?', (email,)).fetchone()
             co_id_row = conn.execute('SELECT co_id FROM COMPANY WHERE name = ?', (subscription_name,)).fetchone()
             # convert the row object to tuple
             user_id = tuple(user_id_row)[0]
             co_id = tuple(co_id_row)[0]
+
+            # update the attributes in the row of the Subscription table associated with the user_id and co_id sent from the client
             conn.execute('''
                     UPDATE Subscription
                     SET start_date = ?, amount = ?, subscription_cycle = ?
                     WHERE user_id = ? AND co_id = ?
                 ''', (start_date, amount, subscription_cycle, user_id, co_id))  
             
+            # return the success response 
             response = {
                 'success': True,
                 'msg': "Edit success"
             }
             conn.commit()
             conn.close()
-
             return response
-
+        
+        # return request_fail response object if login verification failed
         except Exception as e:
             print("An error occurred:", str(e))
             return request_fail
