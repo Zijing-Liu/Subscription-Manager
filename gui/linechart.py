@@ -14,7 +14,6 @@ def createLineChart(subscription_data):
         #if subscription is still going on and no end_date, take today as the end date
         else:
             end_DATE = datetime.now()
-            
         #calculate based on different types of cycle
 
         if cycle == 'weekly':
@@ -62,4 +61,3 @@ def createLineChart(subscription_data):
         'x': months_x,
         'y': [round(pay_payday.get(month_year, 0), 2) for month_year in months_x] 
     }
-    return plot_data

@@ -16,8 +16,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 
 
-
-
 ################################################# HTTP requests start here, communicating to the backend server
 # Make a GET request to the /signup endpoint of the web app, and return the response data
 def getUserData():
@@ -71,7 +69,6 @@ def postNewSubscription():
     try:
         response = requests.post(url, json = new_subcription)
         response.raise_for_status() # Check for any errors
-        # print(response.status_code)
         return response 
     except requests.exceptions.RequestException as e:
         print('Error:', e)
@@ -82,7 +79,6 @@ def getActiveSubscriptions():
     try:
         response = requests.post(url, json = user)
         response.raise_for_status() 
-        print(response.status_code)
         return response
     except requests.exceptions.RequestException as e:
         print('Error:', e)
@@ -93,7 +89,6 @@ def getAllSubscriptions():
     try:
         response = requests.post(url, json = user)
         response.raise_for_status() 
-        print(response.status_code)
         return response
     except requests.exceptions.RequestException as e:
         print('Error:', e)
@@ -106,7 +101,6 @@ def removeASubscription(sub_name):
     try:
         response = requests.post(url, json = subscription)
         response.raise_for_status() 
-        print(response.status_code)
         return response
     except requests.exceptions.RequestException as e:
         print('Error:', e)
@@ -122,7 +116,6 @@ def editASubscription(sub_name, start_date, amout, cycle):
     try:
         response = requests.post(url, json = edit_subscription)
         response.raise_for_status() 
-        print(response.status_code)
         return response
     except requests.exceptions.RequestException as e:
         print('Error:', e)
