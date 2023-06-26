@@ -50,7 +50,7 @@ def createLineChart(subscription_data):
     months_x=[]
     #add last one year to the list
     today = datetime.now() #class datetime.datetime
-    first_x = today-relativedelta(months=11) #class datetime.datetime
+    first_x = today-relativedelta(months=5) #class datetime.datetime
     month_x = first_x
     while month_x <= today:
         month_str = month_x.strftime('%-m/%y')
@@ -63,17 +63,3 @@ def createLineChart(subscription_data):
         'y': [round(pay_payday.get(month_year, 0), 2) for month_year in months_x] 
     }
     return plot_data
- 
-    plt.plot(x, y, marker='s')
-    plt.xlabel('Month-Year')
-    plt.ylabel('Total Spending')
-    plt.title('Subscription Spending in the Past 12 Months')
-    plt.xticks(rotation=90)
-
-
-    # Adding value annotations to each point
-    for i, j in zip(x, y):
-        plt.annotate(str(j), xy=(i, j), xytext=(0, -15),
-                    textcoords='offset points', ha='center')
-
-    # plt.show()
