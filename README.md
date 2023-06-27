@@ -23,11 +23,24 @@ Provide a detailed description of your project. Explain what it does, why it's u
 
 ## Installation
 
-Before starting the application, use the `pip install -r requirements.txt` command to install all of the Python modules and packages in the requirements.txt file. 
+Before starting the application, use the command below to install all of the Python modules and packages in the requirements.txt file.
+
+```
+pip install -r requirements.txt
+```  
 
 ## Get Started
 
-To start using this application, run `python main.py` to start the server in the `'/server'` file path, and then run `python gui.py` in the `'/gui'` path to open the application window.
+To start using this app, run this command in the `'/server'` file path to start the server on your local machine.
+```
+python main.py
+``` 
+
+After the server is running, open another terminal and run this command in the `'/gui'` path to open the application window.
+
+``` 
+python gui.py
+``` 
 
 
 ## Get help
