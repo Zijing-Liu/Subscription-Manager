@@ -26,11 +26,11 @@ This Subscription Manager application was created as part of the course project 
 <br>
 
 ### Background & Objective
-As online subscription gain popularity, consumers now face the risk of overspending due to inadequate management of recurring payments. In a survery conducted by [JPMorgan Chase & Co.] (https://media.chase.com/news/survey-from-chase-reveals), 71% the respondents reported wasting over $50 per month on unnecessary recurring payments, 60% had at least once forgotten about their subscriptions, and 55% were unaware of the total expenses they were being charged each month. 
+As online subscription gain popularity, consumers now face the risk of overspending due to inadequate management of recurring payments. In a survey conducted by [JPMorgan Chase & Co.] (https://media.chase.com/news/survey-from-chase-reveals), 71% the respondents reported wasting over $50 per month on unnecessary recurring payments, 60% had at least once forgotten about their subscriptions, and 55% were unaware of the total expenses they were being charged each month. 
 
 Seeking a fresh start in life where subscriptions work for you, not against you, and where you can enjoy the benefits of subscriptions without the stress?
 
-Our Subscription Manager app is desgined for frequent subscription users who have a need of keeping track of subscriptions and cutting down unnecessary expenses. Our app is the go-to-tool for organizing, recording, and visualizing all subscription information in one place. The goal is to help users stay on top of their subscription spending and make more informed financial decisions
+Our Subscription Manager app is designed for frequent subscription users who have a need of keeping track of subscriptions and cutting down unnecessary expenses. Our app is the go-to-tool for organizing, recording, and visualizing all subscription information in one place. The goal is to help users stay on top of their subscription spending and make more informed financial decisions
 
 <br>
 
@@ -108,7 +108,7 @@ Under the tabular data, users are presented with two button options: "Remove sub
 
 <br>
 
-### Remove Subcription
+### Remove Subscription
 On the remove subscription page, users can remove the subscription records they've entered. To remove a record, users can use the dropdown selection tool to select the specific subscription name they wish to remove from the list. After selecting the desired subscription, users can then proceed to click on the "Remove" button. 
 
 To view the updated table view, users have to navigate back to the homepage and use the bottom nav tab to open a new "Table View" window.
