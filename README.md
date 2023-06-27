@@ -2,8 +2,6 @@
 
 For frequent subscription users who need to reduce expenses on unwanted subscriptions, this product is a subscription manager mobile app that record and visualize user’s subscription information to support their financial decision making.
 
-
-<br>
 <br>
 
 ## Table of Contents
@@ -15,7 +13,6 @@ For frequent subscription users who need to reduce expenses on unwanted subscrip
 - [Contributing](#contributing)
 - [License](#license)
 
-<br>
 <br>
 
 ## Description
@@ -29,7 +26,7 @@ This Subscription Manager application was created as part of the course project 
 <br>
 
 ### Background & Objective
-As online subscription gain popularity, consumers now face the risk of overspending due to inadequate management of recurring payments. In a survery conducted by JPMorgan Chase & Co. (https://media.chase.com/news/survey-from-chase-reveals), 71% the respondents reported wasting over $50 per month on unnecessary recurring payments, 60% had at least once forgotten about their subscriptions, and 55% were unaware of the total expenses they were being charged each month. 
+As online subscription gain popularity, consumers now face the risk of overspending due to inadequate management of recurring payments. In a survery conducted by [JPMorgan Chase & Co.] (https://media.chase.com/news/survey-from-chase-reveals), 71% the respondents reported wasting over $50 per month on unnecessary recurring payments, 60% had at least once forgotten about their subscriptions, and 55% were unaware of the total expenses they were being charged each month. 
 
 Seeking a fresh start in life where subscriptions work for you, not against you, and where you can enjoy the benefits of subscriptions without the stress?
 
@@ -70,7 +67,7 @@ pip install -r requirements.txt
 
 ## Get Started
 
-<<<<<<< Updated upstream
+
 To start using this app, run this command in the `'/server'` file path to start the server on your local machine.
 ```
 python main.py
@@ -81,6 +78,9 @@ After the server is running, open another terminal and run this command in the `
 ``` 
 python gui.py
 ``` 
+
+<br>
+
 ### Welcome Screen
 On the welcome screen, users are presented with two options: "Log in" and "Sign up". By clicking on the "Log in" button, users will be directed to the log in screen. By clicking on the "Sign up" button, users will be directed to the sign up screen where they can create a new account. 
 
