@@ -47,8 +47,9 @@ Our Subscription Manager app is designed for frequent subscription users who hav
 ### Outcome
 
 - Python application
-- [Client-server architecture] (https://www.figma.com/file/2eLzioNvs3th2WTc0WT56D/Architecture?type=whiteboard&node-id=0%3A1&t=BoYV9jU0Edu1hKtb-1)
-- [User flow] (https://www.figma.com/file/ZgQPsUzPS0XyNXnGRyYaxm/User-Flow?type=whiteboard&node-id=0%3A1&t=LCeWiM7UPTUEN5xy-1)
+- [Client-server architecture](https://www.figma.com/file/2eLzioNvs3th2WTc0WT56D/Architecture?type=whiteboard&node-id=0%3A1&t=BoYV9jU0Edu1hKtb-1)
+- [User flow](https://www.figma.com/file/ZgQPsUzPS0XyNXnGRyYaxm/User-Flow?type=whiteboard&node-id=0%3A1&t=LCeWiM7UPTUEN5xy-1)
+
 
 <br>
 <br>
@@ -62,7 +63,6 @@ Before starting the application, use the command below to install all of the Pyt
 pip install -r requirements.txt
 ```  
 
-<br>
 <br>
 
 ## Get Started
@@ -140,7 +140,7 @@ If you would like to contribute to this project, please fork the repository and 
 
 Here is a list of potential features we aim to prioritize: 
 
-- Push notifications to reminder the renew of a subscription
+- Push notifications to remind users before the next billing starts
 - Allow users to add back a cancelled subscription
 - User authentication and user session management
 - Add more subscription service name to the company table, and implement free input for subscription name
